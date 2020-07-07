@@ -8,29 +8,16 @@ import (
 	"os"
 	"strings"
 
-	gcp "cloud.google.com/go/pubsub"
+	gpubsub "cloud.google.com/go/pubsub"
+	"github.com/athenianco/cloud-common/gcp"
 	"github.com/athenianco/cloud-common/report"
 )
-
-// getOneOfEnvs returns the first non-empty value from specified environment variables.
-func getOneOfEnvs(envs ...string) string {
-	for _, env := range envs {
-		if v := os.Getenv(env); v != "" {
-			return v
-		}
-	}
-	return ""
-}
-
-// projectID is set from the GCP_PROJECT (which is automatically set by the Cloud Functions runtime)
-// or ATHENIAN_GCP_PROJECT environment variable.
-var projectID = getOneOfEnvs("GCP_PROJECT", "ATHENIAN_GCP_PROJECT")
 
 var _ Publisher = (*gcpPublisher)(nil)
 
 // gcpPublisher is Google Pub/Sub publisher.
 type gcpPublisher struct {
-	topic *gcp.Topic
+	topic *gpubsub.Topic
 }
 
 // NewPublisherFromEnv is similar to NewPublisher, but takes
@@ -52,7 +39,7 @@ func NewPublisherFromEnv(envs ...string) (Publisher, error) {
 func NewPublisher(topicID string) (Publisher, error) {
 	ctx := context.Background()
 
-	client, err := gcp.NewClient(ctx, projectID)
+	client, err := gpubsub.NewClient(ctx, gcp.ProjectID())
 	if err != nil {
 		report.Error(ctx, err)
 		return nil, err
@@ -76,9 +63,9 @@ func NewPublisher(topicID string) (Publisher, error) {
 
 // Publish messages to the Pub/Sub topic synchronously.
 func (p *gcpPublisher) Publish(ctx context.Context, msgs ...[]byte) error {
-	res := make([]*gcp.PublishResult, 0, len(msgs))
+	res := make([]*gpubsub.PublishResult, 0, len(msgs))
 	for _, data := range msgs {
-		r := p.topic.Publish(ctx, &gcp.Message{Data: data})
+		r := p.topic.Publish(ctx, &gpubsub.Message{Data: data})
 		res = append(res, r)
 	}
 	var last error
@@ -97,13 +84,13 @@ func (p *gcpPublisher) Batch(ctx context.Context) (Batch, error) {
 }
 
 type gcpBatch struct {
-	topic *gcp.Topic
-	res   []*gcp.PublishResult
+	topic *gpubsub.Topic
+	res   []*gpubsub.PublishResult
 }
 
 func (b *gcpBatch) Publish(ctx context.Context, msgs ...[]byte) error {
 	for _, data := range msgs {
-		r := b.topic.Publish(ctx, &gcp.Message{Data: data})
+		r := b.topic.Publish(ctx, &gpubsub.Message{Data: data})
 		b.res = append(b.res, r)
 	}
 	return nil
