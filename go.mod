@@ -13,7 +13,7 @@ require (
 	github.com/containerd/continuity v0.0.0-20200107194136-26c1120b8d41 // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
-	github.com/getsentry/sentry-go v0.6.1
+	github.com/getsentry/sentry-go v0.7.0
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/lib/pq v1.7.1
@@ -24,6 +24,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.7.1
 	github.com/prometheus/client_model v0.2.0
+	github.com/rs/zerolog v1.19.0
 	github.com/stretchr/testify v1.6.1
 	google.golang.org/genproto v0.0.0-20200806141610-86f49bd18e98
 	gotest.tools v2.2.0+incompatible // indirect

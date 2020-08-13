@@ -4,8 +4,18 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
-	"log"
+	"os"
+
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
+
+func init() {
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	if debug := os.Getenv("ATHENIAN_COMMON_DEBUG"); debug == "true" {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
+}
 
 const (
 	instanceIDLen = 8
@@ -32,17 +42,8 @@ func InstanceID() string {
 	return instanceID
 }
 
-type userIDKey struct{}
-
-// WithUserID attaches a user ID to the context.
-func WithUserID(ctx context.Context, id string) context.Context {
-	return context.WithValue(ctx, userIDKey{}, id)
-}
-
-// GetUserID returns a user ID to the context, if any.
-func GetUserID(ctx context.Context) string {
-	id, _ := ctx.Value(userIDKey{}).(string)
-	return id
+func Global() Reporter {
+	return global
 }
 
 func SetReporter(r Reporter) {
@@ -96,23 +97,35 @@ func Flush() error {
 	var last error
 	for _, f := range finalizers {
 		if err := f(); err != nil {
-			log.Println(err)
+			log.Error().Err(err).Send()
 			last = err
 		}
 	}
 	return last
 }
 
+func Default() Reporter {
+	return reporter{}
+}
+
 type reporter struct{}
 
-func (reporter) CaptureInfo(ctx context.Context, format string, args ...interface{}) {
-	// log.Printf(format, args...)
+func (reporter) fromContext(ctx context.Context, ev *zerolog.Event) *zerolog.Event {
+	for v := GetContextValues(ctx); v != nil; v = v.Next() {
+		key, val := v.Key(), v.Value()
+		ev = ev.Interface(key, val)
+	}
+	return ev
 }
 
-func (reporter) CaptureMessage(ctx context.Context, format string, args ...interface{}) {
-	log.Printf(format, args...)
+func (r reporter) CaptureInfo(ctx context.Context, format string, args ...interface{}) {
+	r.fromContext(ctx, log.Debug()).Msgf(format, args...)
 }
 
-func (reporter) CaptureError(ctx context.Context, err error) {
-	log.Println("error:", err)
+func (r reporter) CaptureMessage(ctx context.Context, format string, args ...interface{}) {
+	r.fromContext(ctx, log.Info()).Msgf(format, args...)
+}
+
+func (r reporter) CaptureError(ctx context.Context, err error) {
+	r.fromContext(ctx, log.Error()).Err(err).Send()
 }

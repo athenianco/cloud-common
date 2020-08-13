@@ -3,7 +3,6 @@ package sentry
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"time"
 
@@ -23,7 +22,7 @@ func init() {
 	}); err != nil {
 		panic(err)
 	}
-	report.SetReporter(reporter{})
+	report.SetReporter(reporter{r: report.Global()})
 	report.RegisterFlusher(func() error {
 		sentry.Recover()
 		sentry.Flush(tr.Timeout)
@@ -44,14 +43,16 @@ func setScope(ctx context.Context, scope *sentry.Scope) {
 	scope.SetUser(sentry.User{ID: report.GetUserID(ctx)})
 }
 
-type reporter struct{}
+type reporter struct {
+	r report.Reporter
+}
 
 func (r reporter) CaptureInfo(ctx context.Context, format string, args ...interface{}) {
-	log.Printf(format, args...) // TODO
+	r.r.CaptureInfo(ctx, format, args...)
 }
 
 func (r reporter) CaptureMessage(ctx context.Context, format string, args ...interface{}) {
-	log.Printf(format, args...)
+	r.r.CaptureMessage(ctx, format, args...)
 	h := hubFromContext(ctx)
 	h.WithScope(func(scope *sentry.Scope) {
 		setScope(ctx, scope)
@@ -60,7 +61,7 @@ func (r reporter) CaptureMessage(ctx context.Context, format string, args ...int
 }
 
 func (r reporter) CaptureError(ctx context.Context, err error) {
-	log.Print("error:", err)
+	r.r.CaptureError(ctx, err)
 	h := hubFromContext(ctx)
 	h.WithScope(func(scope *sentry.Scope) {
 		setScope(ctx, scope)
