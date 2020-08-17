@@ -13,6 +13,8 @@ import (
 	"github.com/athenianco/cloud-common/report"
 )
 
+var checkTopics = os.Getenv("ATHENIAN_CHECK_TOPICS") == "true"
+
 var _ Publisher = (*gcpPublisher)(nil)
 
 // gcpPublisher is Google Pub/Sub publisher.
@@ -45,19 +47,18 @@ func NewPublisher(topicID string) (Publisher, error) {
 		return nil, err
 	}
 
-	// Create the topic if it doesn't exist.
 	topic := client.Topic(topicID)
-	exists, err := topic.Exists(ctx)
-	if err != nil {
-		report.Error(ctx, err)
-		return nil, err
+	if checkTopics {
+		exists, err := topic.Exists(ctx)
+		if err != nil {
+			report.Error(ctx, err)
+			return nil, err
+		} else if !exists {
+			err = fmt.Errorf("topic doesn't exist: %q", topicID)
+			report.Error(ctx, err)
+			return nil, err
+		}
 	}
-	if !exists {
-		err = fmt.Errorf("topic doesn't exist: %q", topicID)
-		report.Error(ctx, err)
-		return nil, err
-	}
-
 	return &gcpPublisher{topic: topic}, nil
 }
 
