@@ -119,7 +119,7 @@ func (reporter) fromContext(ctx context.Context, ev *zerolog.Event) *zerolog.Eve
 }
 
 func (r reporter) CaptureInfo(ctx context.Context, format string, args ...interface{}) {
-	r.fromContext(ctx, log.Debug()).Msgf(format, args...)
+	r.fromContext(ctx, log.Info()).Msgf(format, args...)
 }
 
 func (r reporter) CaptureMessage(ctx context.Context, format string, args ...interface{}) {
