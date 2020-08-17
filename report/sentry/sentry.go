@@ -22,7 +22,7 @@ func init() {
 	}); err != nil {
 		panic(err)
 	}
-	report.SetReporter(reporter{r: report.Global()})
+	report.SetReporter(reporter{r: report.Default()})
 	report.RegisterFlusher(func() error {
 		sentry.Recover()
 		sentry.Flush(tr.Timeout)
