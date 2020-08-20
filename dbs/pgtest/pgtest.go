@@ -10,6 +10,9 @@ import (
 	"sync/atomic"
 	"testing"
 
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
 	"github.com/ory/dockertest"
 	"github.com/stretchr/testify/require"
@@ -26,7 +29,23 @@ func NewDatabasePool(t testing.TB, schemas ...string) (DBFunc, func()) {
 		_, err := os.Stat(schema)
 		require.NoError(t, err)
 	}
+	return NewDatabasePoolWith(t, func(addr string) error {
+		return importSchemas(addr, schemas...)
+	})
+}
 
+func NewDatabasePoolMigrate(t testing.TB, dir string) (DBFunc, func()) {
+	return NewDatabasePoolWith(t, func(addr string) error {
+		m, err := migrate.New("file://"+dir, addr)
+		if err != nil {
+			return err
+		}
+		defer m.Close()
+		return m.Up()
+	})
+}
+
+func NewDatabasePoolWith(t testing.TB, schema func(addr string) error) (DBFunc, func()) {
 	pool, err := dockertest.NewPool("")
 	if err != nil {
 		t.Fatal(err)
@@ -75,8 +94,8 @@ func NewDatabasePool(t testing.TB, schemas ...string) (DBFunc, func()) {
 			}
 
 			addr := fmt.Sprintf(addrFmt, dbname)
-			if len(schemas) != 0 {
-				err = importSchemas(addr, schemas...)
+			if schema != nil {
+				err = schema(addr)
 				if err != nil {
 					_, _ = db.Exec(`DROP DATABASE ` + dbname)
 					t.Fatal(err)
