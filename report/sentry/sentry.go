@@ -67,3 +67,14 @@ func (r reporter) CaptureError(ctx context.Context, err error) {
 		h.CaptureException(err)
 	})
 }
+
+func RecoverAndPanic(ctx context.Context) {
+	if r := recover(); r != nil {
+		h := hubFromContext(ctx)
+		h.WithScope(func(scope *sentry.Scope) {
+			setScope(ctx, scope)
+			h.Recover(r)
+		})
+		panic(r)
+	}
+}
