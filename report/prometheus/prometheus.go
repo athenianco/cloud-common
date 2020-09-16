@@ -33,7 +33,7 @@ func init() {
 		g:      prometheus.DefaultGatherer,
 		labels: labels,
 	})
-	report.RegisterFlusher(p.Push)
+	report.RegisterFlusher(p.Add)
 }
 
 // staticLabels is a Gatherer that attaches a static set of labels to all metrics.
