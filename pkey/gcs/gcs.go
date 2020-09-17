@@ -53,39 +53,30 @@ func (p *Provider) GetPrivateKeyData(ctx context.Context, appId int64) ([]byte, 
 func (p *Provider) Close() error { return p.cli.Close() }
 
 type Processor struct {
-	processor pkey.Processor
-	bucket    string
-	cli       *storage.Client
+	bucket string
+	cli    *storage.Client
 }
 
-func NewProcessorFromEnv(ctx context.Context, processor pkey.Processor) (pkey.Processor, error) {
+func NewProcessorFromEnv(ctx context.Context) (pkey.Processor, error) {
 	bucket := os.Getenv("GOOGLE_KMS_BUCKET")
 	if bucket == "" {
 		return nil, errors.New("GOOGLE_KMS_BUCKET was not set")
 	}
-	return NewProcessor(ctx, bucket, processor)
+	return NewProcessor(ctx, bucket)
 }
 
-func NewProcessor(ctx context.Context, bucket string, processor pkey.Processor) (pkey.Processor, error) {
+func NewProcessor(ctx context.Context, bucket string) (pkey.Processor, error) {
 	storageCli, err := storage.NewClient(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return &Processor{
-		processor: processor,
-		bucket:    bucket,
-		cli:       storageCli,
+		bucket: bucket,
+		cli:    storageCli,
 	}, nil
 }
 
 func (p *Processor) ProcessPrivateKeyData(ctx context.Context, accID int64, data []byte) error {
-	if p.processor != nil {
-		err := p.processor.ProcessPrivateKeyData(ctx, accID, data)
-		if err != nil {
-			return err
-		}
-	}
-
 	b := p.cli.Bucket(p.bucket)
 	obj := b.Object(strconv.Itoa(int(accID)))
 	w := obj.NewWriter(ctx)
@@ -96,10 +87,5 @@ func (p *Processor) ProcessPrivateKeyData(ctx context.Context, accID int64, data
 }
 
 func (p *Processor) Close() error {
-	if p.processor != nil {
-		if err := p.processor.Close(); err != nil {
-			return err
-		}
-	}
 	return p.cli.Close()
 }

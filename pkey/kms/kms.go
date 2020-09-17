@@ -75,6 +75,9 @@ func NewProcessorFromEnv(ctx context.Context, processor pkey.Processor) (pkey.Pr
 }
 
 func NewProcessor(ctx context.Context, keyName string, processor pkey.Processor) (pkey.Processor, error) {
+	if processor == nil {
+		return nil, errors.New("nested processor is nil")
+	}
 	kmsCli, err := kms.NewKeyManagementClient(ctx)
 	if err != nil {
 		return nil, err
@@ -91,11 +94,7 @@ func (p *Processor) ProcessPrivateKeyData(ctx context.Context, accID int64, data
 	if err != nil {
 		return err
 	}
-
-	if p.processor != nil {
-		return p.processor.ProcessPrivateKeyData(ctx, accID, data)
-	}
-	return nil
+	return p.processor.ProcessPrivateKeyData(ctx, accID, data)
 }
 
 func (p *Processor) encryptPrivateKeyData(ctx context.Context, data []byte) ([]byte, error) {
@@ -112,10 +111,8 @@ func (p *Processor) encryptPrivateKeyData(ctx context.Context, data []byte) ([]b
 }
 
 func (p *Processor) Close() error {
-	if p.processor != nil {
-		if err := p.processor.Close(); err != nil {
-			return err
-		}
+	if err := p.processor.Close(); err != nil {
+		return err
 	}
 	return p.cli.Close()
 }
