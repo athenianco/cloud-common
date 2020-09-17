@@ -12,8 +12,14 @@ const pemPKeyBlock = "RSA PRIVATE KEY"
 
 // TODO: rename because this interface will be used not only for the private key data
 
-type PKeyProvider interface {
+type Provider interface {
 	GetPrivateKeyData(ctx context.Context, appID int64) ([]byte, error)
+	Close() error
+}
+
+// PKeyProcessor is an interface that allows to encode, encrypt or store private key data
+type Processor interface {
+	ProcessPrivateKeyData(ctx context.Context, accID int64, data []byte) error
 	Close() error
 }
 

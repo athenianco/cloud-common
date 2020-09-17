@@ -11,51 +11,111 @@ import (
 	kmspb "google.golang.org/genproto/googleapis/cloud/kms/v1"
 )
 
-type KMS struct {
-	provider pkey.PKeyProvider
+type Provider struct {
+	provider pkey.Provider
 	keyName  string
 	cli      *kms.KeyManagementClient
 }
 
-func NewFromEnv(ctx context.Context, pkey pkey.PKeyProvider) (pkey.PKeyProvider, error) {
+func NewProviderFromEnv(ctx context.Context, pkey pkey.Provider) (pkey.Provider, error) {
 	keyName := os.Getenv("GOOGLE_KMS_KEY")
 	if keyName == "" {
 		return nil, errors.New("GOOGLE_KMS_KEY was not set")
 	}
-	return New(ctx, keyName, pkey)
+	return NewProvider(ctx, keyName, pkey)
 }
 
-func New(ctx context.Context, keyName string, pkey pkey.PKeyProvider) (pkey.PKeyProvider, error) {
+func NewProvider(ctx context.Context, keyName string, pkey pkey.Provider) (pkey.Provider, error) {
 	kmsCli, err := kms.NewKeyManagementClient(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &KMS{
+	return &Provider{
 		provider: pkey,
 		keyName:  keyName,
 		cli:      kmsCli,
 	}, nil
 }
 
-func (k *KMS) GetPrivateKeyData(ctx context.Context, appId int64) ([]byte, error) {
-	encData, err := k.provider.GetPrivateKeyData(ctx, appId)
+func (p *Provider) GetPrivateKeyData(ctx context.Context, appId int64) ([]byte, error) {
+	encData, err := p.provider.GetPrivateKeyData(ctx, appId)
 	if err != nil {
 		return nil, err
 	}
-	return k.decryptPrivateKeyData(ctx, encData)
+	return p.decryptPrivateKeyData(ctx, encData)
 }
 
-func (k *KMS) decryptPrivateKeyData(ctx context.Context, data []byte) ([]byte, error) {
+func (p *Provider) decryptPrivateKeyData(ctx context.Context, data []byte) ([]byte, error) {
 	req := &kmspb.DecryptRequest{
-		Name:       k.keyName,
+		Name:       p.keyName,
 		Ciphertext: data,
 	}
 
-	result, err := k.cli.Decrypt(ctx, req)
+	result, err := p.cli.Decrypt(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decrypt ciphertext: %v", err)
 	}
 	return result.GetPlaintext(), nil
 }
 
-func (k *KMS) Close() error { return k.cli.Close() }
+func (p *Provider) Close() error { return p.cli.Close() }
+
+type Processor struct {
+	processor pkey.Processor
+	keyName   string
+	cli       *kms.KeyManagementClient
+}
+
+func NewProcessorFromEnv(ctx context.Context, processor pkey.Processor) (pkey.Processor, error) {
+	keyName := os.Getenv("GOOGLE_KMS_KEY")
+	if keyName == "" {
+		return nil, errors.New("GOOGLE_KMS_KEY was not set")
+	}
+	return NewProcessor(ctx, keyName, processor)
+}
+
+func NewProcessor(ctx context.Context, keyName string, processor pkey.Processor) (pkey.Processor, error) {
+	kmsCli, err := kms.NewKeyManagementClient(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &Processor{
+		processor: processor,
+		keyName:   keyName,
+		cli:       kmsCli,
+	}, nil
+}
+
+func (p *Processor) ProcessPrivateKeyData(ctx context.Context, accID int64, data []byte) error {
+	data, err := p.encryptPrivateKeyData(ctx, data)
+	if err != nil {
+		return err
+	}
+
+	if p.processor != nil {
+		return p.processor.ProcessPrivateKeyData(ctx, accID, data)
+	}
+	return nil
+}
+
+func (p *Processor) encryptPrivateKeyData(ctx context.Context, data []byte) ([]byte, error) {
+	req := &kmspb.EncryptRequest{
+		Name:      p.keyName,
+		Plaintext: data,
+	}
+
+	result, err := p.cli.Encrypt(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt ciphertext: %v", err)
+	}
+	return result.GetCiphertext(), nil
+}
+
+func (p *Processor) Close() error {
+	if p.processor != nil {
+		if err := p.processor.Close(); err != nil {
+			return err
+		}
+	}
+	return p.cli.Close()
+}
