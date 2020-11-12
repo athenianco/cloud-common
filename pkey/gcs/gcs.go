@@ -86,6 +86,13 @@ func (p *Processor) ProcessPrivateKeyData(ctx context.Context, accID int64, data
 	return err
 }
 
+func (p *Processor) DeletePrivateKeyData(ctx context.Context, accID int64) error {
+	b := p.cli.Bucket(p.bucket)
+	obj := b.Object(strconv.Itoa(int(accID)))
+
+	return obj.Delete(ctx)
+}
+
 func (p *Processor) Close() error {
 	return p.cli.Close()
 }
