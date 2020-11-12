@@ -110,6 +110,10 @@ func (p *Processor) encryptPrivateKeyData(ctx context.Context, data []byte) ([]b
 	return result.GetCiphertext(), nil
 }
 
+func (p *Processor) DeletePrivateKeyData(ctx context.Context, accID int64) error {
+	return p.processor.DeletePrivateKeyData(ctx, accID)
+}
+
 func (p *Processor) Close() error {
 	if err := p.processor.Close(); err != nil {
 		return err

@@ -20,6 +20,7 @@ type Provider interface {
 // PKeyProcessor is an interface that allows to encode, encrypt or store private key data
 type Processor interface {
 	ProcessPrivateKeyData(ctx context.Context, accID int64, data []byte) error
+	DeletePrivateKeyData(ctx context.Context, accID int64) error
 	Close() error
 }
 
