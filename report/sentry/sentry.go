@@ -4,11 +4,32 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/athenianco/cloud-common/report"
 	"github.com/getsentry/sentry-go"
 )
+
+type EventErrFunc func(ctx context.Context, ev *sentry.Event, err error)
+
+var (
+	beforeMu   sync.RWMutex
+	beforeSend []EventErrFunc
+)
+
+func RegisterBeforeSend(fnc EventErrFunc) {
+	beforeMu.Lock()
+	defer beforeMu.Unlock()
+	beforeSend = append(beforeSend, fnc)
+}
+
+func getSendHooks() []EventErrFunc {
+	beforeMu.RLock()
+	funcs := beforeSend
+	beforeMu.RUnlock()
+	return funcs
+}
 
 func init() {
 	if os.Getenv("SENTRY_DSN") == "" {
@@ -19,6 +40,15 @@ func init() {
 	if err := sentry.Init(sentry.ClientOptions{
 		Transport:  tr,
 		ServerName: os.Getenv("SENTRY_SERVER"),
+		BeforeSend: func(event *sentry.Event, hint *sentry.EventHint) *sentry.Event {
+			if len(event.Fingerprint) == 0 {
+				event.Fingerprint = []string{"{{ default }}"}
+			}
+			for _, fnc := range getSendHooks() {
+				fnc(hint.Context, event, hint.OriginalException)
+			}
+			return event
+		},
 	}); err != nil {
 		panic(err)
 	}
