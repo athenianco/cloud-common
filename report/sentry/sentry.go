@@ -44,8 +44,16 @@ func init() {
 			if len(event.Fingerprint) == 0 {
 				event.Fingerprint = []string{"{{ default }}"}
 			}
+			err := hint.OriginalException
+			// pgconn.PgError
+			if e, ok := err.(interface {
+				error
+				SQLState() string
+			}); ok {
+				event.Fingerprint = append(event.Fingerprint, e.Error(), e.SQLState())
+			}
 			for _, fnc := range getSendHooks() {
-				fnc(hint.Context, event, hint.OriginalException)
+				fnc(hint.Context, event, err)
 			}
 			return event
 		},
