@@ -70,6 +70,14 @@ func GetContextValues(ctx context.Context) *Value {
 	}
 }
 
+func GetContextMap(ctx context.Context) map[string]interface{} {
+	m := make(map[string]interface{})
+	for v := GetContextValues(ctx); v != nil; v = v.Next() {
+		m[v.Key()] = v.Value()
+	}
+	return m
+}
+
 func withContextValue(ctx context.Context, key string, val interface{}) context.Context {
 	prev := getContextValue(ctx)
 	v := &contextValue{key: key, value: val}

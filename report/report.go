@@ -111,8 +111,7 @@ func Default() Reporter {
 type reporter struct{}
 
 func (reporter) fromContext(ctx context.Context, ev *zerolog.Event) *zerolog.Event {
-	for v := GetContextValues(ctx); v != nil; v = v.Next() {
-		key, val := v.Key(), v.Value()
+	for key, val := range GetContextMap(ctx) {
 		ev = ev.Interface(key, val)
 	}
 	return ev
