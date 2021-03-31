@@ -7,8 +7,9 @@ import (
 	"os"
 
 	kms "cloud.google.com/go/kms/apiv1"
-	"github.com/athenianco/cloud-common/pkey"
 	kmspb "google.golang.org/genproto/googleapis/cloud/kms/v1"
+
+	"github.com/athenianco/cloud-common/pkey"
 )
 
 type Provider struct {
@@ -39,6 +40,14 @@ func NewProvider(ctx context.Context, keyName string, pkey pkey.Provider) (pkey.
 
 func (p *Provider) GetPrivateKeyData(ctx context.Context, appId int64) ([]byte, error) {
 	encData, err := p.provider.GetPrivateKeyData(ctx, appId)
+	if err != nil {
+		return nil, err
+	}
+	return p.decryptPrivateKeyData(ctx, encData)
+}
+
+func (p *Provider) GetPrivateKey(ctx context.Context, id string) ([]byte, error) {
+	encData, err := p.provider.GetPrivateKey(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -97,6 +106,14 @@ func (p *Processor) ProcessPrivateKeyData(ctx context.Context, accID int64, data
 	return p.processor.ProcessPrivateKeyData(ctx, accID, data)
 }
 
+func (p *Processor) PutPrivateKey(ctx context.Context, id string, data []byte) error {
+	data, err := p.encryptPrivateKeyData(ctx, data)
+	if err != nil {
+		return err
+	}
+	return p.processor.PutPrivateKey(ctx, id, data)
+}
+
 func (p *Processor) encryptPrivateKeyData(ctx context.Context, data []byte) ([]byte, error) {
 	req := &kmspb.EncryptRequest{
 		Name:      p.keyName,
@@ -108,6 +125,10 @@ func (p *Processor) encryptPrivateKeyData(ctx context.Context, data []byte) ([]b
 		return nil, fmt.Errorf("failed to decrypt ciphertext: %v", err)
 	}
 	return result.GetCiphertext(), nil
+}
+
+func (p *Processor) DelPrivateKey(ctx context.Context, id string) error {
+	return p.processor.DelPrivateKey(ctx, id)
 }
 
 func (p *Processor) DeletePrivateKeyData(ctx context.Context, accID int64) error {

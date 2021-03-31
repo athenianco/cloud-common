@@ -21,7 +21,11 @@ func New(workDir string) *Local {
 }
 
 func (l *Local) GetPrivateKeyData(ctx context.Context, appId int64) ([]byte, error) {
-	data, err := ioutil.ReadFile(filepath.Join(l.workDir, strconv.Itoa(int(appId))+".pem"))
+	return l.GetPrivateKey(ctx, strconv.Itoa(int(appId)))
+}
+
+func (l *Local) GetPrivateKey(ctx context.Context, id string) ([]byte, error) {
+	data, err := ioutil.ReadFile(filepath.Join(l.workDir, id+".pem"))
 	if os.IsNotExist(err) {
 		return nil, dbs.ErrNotFound
 	}
