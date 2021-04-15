@@ -32,6 +32,7 @@ func TestInfo(t *testing.T) {
 	Error(ctx, errors.New("error message"))
 
 	require.Equal(t, strings.TrimSpace(`
+{"level":"info","foo":"val","message":"debug message: 123"}
 {"level":"info","foo":"val","message":"info message: 321"}
 {"level":"error","foo":"val","bar":2,"baz":["A","B"],"error":"error message"}
 `), strings.TrimSpace(buf.String()))
