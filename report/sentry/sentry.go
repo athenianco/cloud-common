@@ -7,8 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/athenianco/cloud-common/report"
 	"github.com/getsentry/sentry-go"
+
+	"github.com/athenianco/cloud-common/report"
 )
 
 type EventErrFunc func(ctx context.Context, ev *sentry.Event, err error)
@@ -77,7 +78,11 @@ func hubFromContext(ctx context.Context) *sentry.Hub {
 }
 
 func setScope(ctx context.Context, scope *sentry.Scope) {
-	scope.SetUser(sentry.User{ID: report.GetUserID(ctx)})
+	scope.SetUser(sentry.User{
+		ID:       report.GetUserID(ctx),
+		Username: report.GetUserName(ctx),
+		Email:    report.GetUserEmail(ctx),
+	})
 }
 
 type reporter struct {

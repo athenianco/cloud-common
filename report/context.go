@@ -3,15 +3,39 @@ package report
 import "context"
 
 type userIDKey struct{}
+type userNameKey struct{}
+type userEmailKey struct{}
 
 // WithUserID attaches a user ID to the context.
 func WithUserID(ctx context.Context, id string) context.Context {
 	return context.WithValue(ctx, userIDKey{}, id)
 }
 
+// WithUserName attaches a username to the context.
+func WithUserName(ctx context.Context, id string) context.Context {
+	return context.WithValue(ctx, userNameKey{}, id)
+}
+
+// WithUserEmail attaches a user email to the context.
+func WithUserEmail(ctx context.Context, id string) context.Context {
+	return context.WithValue(ctx, userEmailKey{}, id)
+}
+
 // GetUserID returns a user ID to the context, if any.
 func GetUserID(ctx context.Context) string {
 	id, _ := ctx.Value(userIDKey{}).(string)
+	return id
+}
+
+// GetUserName returns a username to the context, if any.
+func GetUserName(ctx context.Context) string {
+	id, _ := ctx.Value(userNameKey{}).(string)
+	return id
+}
+
+// GetUserEmail returns a user email to the context, if any.
+func GetUserEmail(ctx context.Context) string {
+	id, _ := ctx.Value(userEmailKey{}).(string)
 	return id
 }
 
