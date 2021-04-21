@@ -137,7 +137,7 @@ func (r reporter) CaptureInfo(ctx context.Context, format string, args ...interf
 }
 
 func (r reporter) CaptureMessage(ctx context.Context, format string, args ...interface{}) {
-	r.fromContext(ctx, zlogOut.Info()).Msgf(format, args...)
+	r.fromContext(ctx, zlogOut.Warn()).Msgf(format, args...)
 }
 
 func (r reporter) CaptureError(ctx context.Context, err error) {
