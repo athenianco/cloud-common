@@ -7,10 +7,25 @@ import (
 	"os"
 
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
+
+	"github.com/athenianco/cloud-common/gcp"
+)
+
+var (
+	zlogOut = zerolog.New(os.Stdout).With().Timestamp().Logger()
+	zlogErr = zerolog.New(os.Stderr).With().Timestamp().Logger()
 )
 
 func init() {
+	// this is what GCP expects
+	zerolog.LevelFieldName = "severity"
+	zerolog.MessageFieldName = "message"
+	zerolog.ErrorFieldName = zerolog.MessageFieldName
+	if gcp.IsCloudFunction() {
+		// redirect error log to stdout as well
+		zlogErr = zlogOut
+	}
+
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	if debug := os.Getenv("ATHENIAN_COMMON_DEBUG"); debug == "true" {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
@@ -97,7 +112,7 @@ func Flush() error {
 	var last error
 	for _, f := range finalizers {
 		if err := f(); err != nil {
-			log.Error().Err(err).Send()
+			zlogErr.Error().Err(err).Send()
 			last = err
 		}
 	}
@@ -118,13 +133,13 @@ func (reporter) fromContext(ctx context.Context, ev *zerolog.Event) *zerolog.Eve
 }
 
 func (r reporter) CaptureInfo(ctx context.Context, format string, args ...interface{}) {
-	r.fromContext(ctx, log.Info()).Msgf(format, args...)
+	r.fromContext(ctx, zlogOut.Info()).Msgf(format, args...)
 }
 
 func (r reporter) CaptureMessage(ctx context.Context, format string, args ...interface{}) {
-	r.fromContext(ctx, log.Info()).Msgf(format, args...)
+	r.fromContext(ctx, zlogOut.Info()).Msgf(format, args...)
 }
 
 func (r reporter) CaptureError(ctx context.Context, err error) {
-	r.fromContext(ctx, log.Error()).Err(err).Send()
+	r.fromContext(ctx, zlogErr.Error()).Err(err).Send()
 }
