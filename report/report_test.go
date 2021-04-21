@@ -8,18 +8,18 @@ import (
 	"testing"
 
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
 )
 
 func TestInfo(t *testing.T) {
-	old := log.Logger
+	oldOut, oldErr := zlogOut, zlogErr
 	defer func() {
-		log.Logger = old
+		zlogOut, zlogErr = oldOut, oldErr
 	}()
 
 	buf := bytes.NewBuffer(nil)
-	log.Logger = zerolog.New(buf)
+	zlogOut = zerolog.New(buf)
+	zlogErr = zlogOut
 
 	ctx := context.Background()
 	ctx = WithStringValue(ctx, "foo", "val")
@@ -32,8 +32,8 @@ func TestInfo(t *testing.T) {
 	Error(ctx, errors.New("error message"))
 
 	require.Equal(t, strings.TrimSpace(`
-{"level":"info","foo":"val","message":"debug message: 123"}
-{"level":"info","foo":"val","message":"info message: 321"}
-{"level":"error","foo":"val","bar":2,"baz":["A","B"],"error":"error message"}
+{"severity":"info","foo":"val","message":"debug message: 123"}
+{"severity":"warn","foo":"val","message":"info message: 321"}
+{"severity":"error","foo":"val","bar":2,"baz":["A","B"],"message":"error message"}
 `), strings.TrimSpace(buf.String()))
 }
