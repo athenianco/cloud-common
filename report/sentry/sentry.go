@@ -102,13 +102,15 @@ func (r reporter) CaptureMessage(ctx context.Context, format string, args ...int
 	})
 }
 
-func (r reporter) CaptureError(ctx context.Context, err error) {
-	r.r.CaptureError(ctx, err)
+func (r reporter) CaptureError(ctx context.Context, err error) report.EventID {
+	id := r.r.CaptureError(ctx, err)
 	h := hubFromContext(ctx)
+
 	h.WithScope(func(scope *sentry.Scope) {
 		setScope(ctx, scope)
-		h.CaptureException(err)
+		id = report.EventID(*h.CaptureException(err))
 	})
+	return id
 }
 
 func CaptureAndPanic(ctx context.Context, r interface{}) {
