@@ -65,10 +65,12 @@ func SetReporter(r Reporter) {
 	global = r
 }
 
+type EventID string
+
 type Reporter interface {
 	CaptureInfo(ctx context.Context, format string, args ...interface{})
 	CaptureMessage(ctx context.Context, format string, args ...interface{})
-	CaptureError(ctx context.Context, err error)
+	CaptureError(ctx context.Context, err error) EventID
 }
 
 func Info(ctx context.Context, format string, args ...interface{}) {
@@ -85,19 +87,19 @@ func Message(ctx context.Context, format string, args ...interface{}) {
 	global.CaptureMessage(ctx, format, args...)
 }
 
-func Error(ctx context.Context, err error) {
+func Error(ctx context.Context, err error) EventID {
 	if global == nil || err == nil {
-		return
+		return ""
 	}
 	switch err := err.(type) {
 	case interface {
 		Temporary() bool
 	}:
 		if err.Temporary() {
-			return
+			return ""
 		}
 	}
-	global.CaptureError(ctx, err)
+	return global.CaptureError(ctx, err)
 }
 
 var finalizers []func() error
@@ -140,6 +142,7 @@ func (r reporter) CaptureMessage(ctx context.Context, format string, args ...int
 	r.fromContext(ctx, zlogOut.Warn()).Msgf(format, args...)
 }
 
-func (r reporter) CaptureError(ctx context.Context, err error) {
+func (r reporter) CaptureError(ctx context.Context, err error) EventID {
 	r.fromContext(ctx, zlogErr.Error()).Err(err).Send()
+	return ""
 }
