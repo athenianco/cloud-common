@@ -58,11 +58,8 @@ func init() {
 				SQLState() string
 			}); ok {
 				event.Fingerprint = append(event.Fingerprint, e.Error(), e.SQLState())
-			} else if e, ok := err.(interface {
-				error
-				GetFormat() string
-			}); ok {
-				event.Fingerprint = append(event.Fingerprint, e.Error(), e.GetFormat())
+			} else if e, ok := err.(report.Err); ok {
+				event.Fingerprint = append(event.Fingerprint, e.ErrorFormat())
 			}
 			for _, fnc := range getSendHooks() {
 				fnc(hint.Context, event, err)

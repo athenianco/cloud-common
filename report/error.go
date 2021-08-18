@@ -4,7 +4,7 @@ import "fmt"
 
 type Err interface {
 	error
-	GetFormat() string
+	ErrorFormat() string
 }
 
 type Errf struct {
@@ -16,7 +16,7 @@ func (e *Errf) Error() string {
 	return fmt.Sprintf(e.format, e.a...)
 }
 
-func (e *Errf) GetFormat() string {
+func (e *Errf) ErrorFormat() string {
 	return e.format
 }
 
