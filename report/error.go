@@ -7,21 +7,21 @@ type Err interface {
 	ErrorFormat() string
 }
 
-type Errf struct {
+type errf struct {
 	format string
 	a      []interface{}
 }
 
-func (e *Errf) Error() string {
+func (e *errf) Error() string {
 	return fmt.Sprintf(e.format, e.a...)
 }
 
-func (e *Errf) ErrorFormat() string {
+func (e *errf) ErrorFormat() string {
 	return e.format
 }
 
 func Errorf(format string, a ...interface{}) Err {
-	return &Errf{
+	return &errf{
 		format: format,
 		a:      a,
 	}
