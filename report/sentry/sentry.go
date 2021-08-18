@@ -45,6 +45,12 @@ func init() {
 			if len(event.Fingerprint) == 0 {
 				event.Fingerprint = []string{"{{ default }}"}
 			}
+			// handle panic
+			if hint.RecoveredException != nil {
+				// panic's argument
+				event.Fingerprint = append(event.Fingerprint, fmt.Sprintf("%v", hint.RecoveredException))
+			}
+
 			err := hint.OriginalException
 			// pgconn.PgError
 			if e, ok := err.(interface {
