@@ -11,6 +11,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestWrapError(t *testing.T) {
+	orig := errors.New("test")
+	err := Errorf("sub: %w", orig)
+	require.Equal(t, "sub: test", err.Error())
+}
+
 func TestInfo(t *testing.T) {
 	oldOut, oldErr := zlogOut, zlogErr
 	defer func() {
