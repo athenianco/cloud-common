@@ -13,7 +13,7 @@ type errf struct {
 }
 
 func (e *errf) Error() string {
-	return fmt.Sprintf(e.format, e.a...)
+	return fmt.Errorf(e.format, e.a...).Error()
 }
 
 func (e *errf) ErrorFormat() string {
