@@ -1,0 +1,127 @@
+name: Push
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+
+env:
+  GO_CACHE_PREFIX: ubuntu-20.04-go
+
+jobs:
+  test-go-stable:
+    name: Test
+    runs-on: ubuntu-20.04
+    steps:
+    - name: actions/checkout
+      uses: actions/checkout@v2
+    - name: actions/cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/go
+          ~/.cache/go-build
+        key: ${{ env.GO_CACHE_PREFIX }}-test-${{ hashFiles('go.mod') }}
+        restore-keys: |
+          ${{ env.GO_CACHE_PREFIX }}-test-
+          ${{ env.GO_CACHE_PREFIX }}-
+    - uses: actions/setup-go@v2
+      with:
+        go-version: '1.16.x'
+    - name: script
+      run: |
+        set -x
+        go test ./...
+  test-go-113:
+    name: Test (1.13)
+    runs-on: ubuntu-20.04
+    steps:
+    - name: actions/checkout
+      uses: actions/checkout@v2
+    - name: actions/cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/go
+          ~/.cache/go-build
+        key: ${{ env.GO_CACHE_PREFIX }}-test-113-${{ hashFiles('go.mod') }}
+        restore-keys: |
+          ${{ env.GO_CACHE_PREFIX }}-test-113-
+          ${{ env.GO_CACHE_PREFIX }}-
+    - uses: actions/setup-go@v2
+      with:
+        go-version: '1.13.x'
+    - name: script
+      run: |
+        set -x
+        rm go.mod go.sum
+        go mod init github.com/athenianco/cloud-common
+        go mod tidy
+        go test ./...
+        go build ./...
+  semgrep:
+    name: Semgrep
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v1
+    - name: Semgrep
+      id: semgrep
+      uses: returntocorp/semgrep-action@v1
+      with:
+        config: p/ci
+  no-confusion:
+    name: No confusion
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v1
+    - uses: vmarkovtsev/no-confusion-action@1.0.6
+      with:
+        include: '["**/*.yml", "**/*.yaml", "**/*.json", "**/*.go"]'
+  go-vet:
+    name: Go vet
+    runs-on: ubuntu-20.04
+    steps:
+      - name: actions/checkout
+        uses: actions/checkout@v2
+      - name: actions/cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/go
+            ~/.cache/go-build
+          key: ${{ env.GO_CACHE_PREFIX }}-go-vet-${{ hashFiles('go.mod') }}
+          restore-keys: |
+            ${{ env.GO_CACHE_PREFIX }}-go-vet-
+            ${{ env.GO_CACHE_PREFIX }}-
+      - name: vet
+        run: go vet ./...
+  static-check:
+    name: Static check
+    runs-on: ubuntu-20.04
+    steps:
+    - name: actions/checkout
+      uses: actions/checkout@v2
+    - name: actions/cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/go
+          ~/.cache/go-build
+        key: ${{ env.GO_CACHE_PREFIX }}-static-check-${{ hashFiles('go.mod') }}
+        restore-keys: |
+          ${{ env.GO_CACHE_PREFIX }}-static-check-
+          ${{ env.GO_CACHE_PREFIX }}-
+    - name: install staticcheck
+      run: |
+        wget https://github.com/dominikh/go-tools/releases/download/2021.1.1/staticcheck_linux_amd64.tar.gz
+        tar -xf staticcheck_linux_amd64.tar.gz
+    - name: staticcheck
+      run: staticcheck/staticcheck
+  gitleaks:
+    name: Gitleaks
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: gitleaks-action
+        uses: zricethezav/gitleaks-action@master
