@@ -1,6 +1,10 @@
 package report
 
-import "context"
+import (
+	"context"
+	"crypto/rand"
+	"encoding/hex"
+)
 
 type userIDKey struct{}
 type userNameKey struct{}
@@ -128,4 +132,13 @@ func WithInt64Value(ctx context.Context, key string, val int64) context.Context 
 
 func WithStringValues(ctx context.Context, key string, val []string) context.Context {
 	return withContextValue(ctx, key, val)
+}
+
+func WithRandomID(ctx context.Context, key string) context.Context {
+	var buf [16]byte
+	_, err := rand.Read(buf[:])
+	if err != nil {
+		panic(err)
+	}
+	return withContextValue(ctx, key, hex.EncodeToString(buf[:]))
 }
