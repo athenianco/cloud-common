@@ -3,8 +3,8 @@ module github.com/athenianco/cloud-common
 go 1.16
 
 require (
-	cloud.google.com/go v0.63.0
-	cloud.google.com/go/pubsub v1.6.1
+	cloud.google.com/go/kms v0.1.0
+	cloud.google.com/go/pubsub v1.16.0
 	cloud.google.com/go/storage v1.10.0
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/containerd/continuity v0.0.0-20200107194136-26c1120b8d41 // indirect
@@ -20,6 +20,6 @@ require (
 	github.com/rs/zerolog v1.19.0
 	github.com/slack-go/slack v0.9.4
 	github.com/stretchr/testify v1.7.0
-	google.golang.org/genproto v0.0.0-20200806141610-86f49bd18e98
+	google.golang.org/genproto v0.0.0-20210821163610-241b8fcbd6c8
 	gotest.tools v2.2.0+incompatible // indirect
 )
