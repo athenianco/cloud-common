@@ -15,7 +15,7 @@ require (
 	github.com/lib/pq v1.10.2
 	github.com/opencontainers/runc v1.0.0-rc95 // indirect
 	github.com/ory/dockertest v3.3.5+incompatible
-	github.com/prometheus/client_golang v1.7.1
+	github.com/prometheus/client_golang v1.11.0
 	github.com/prometheus/client_model v0.2.0
 	github.com/rs/zerolog v1.24.0
 	github.com/slack-go/slack v0.9.4
