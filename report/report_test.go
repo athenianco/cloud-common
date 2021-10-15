@@ -3,7 +3,9 @@ package report
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
+	"io"
 	"strings"
 	"testing"
 
@@ -15,6 +17,22 @@ func TestWrapError(t *testing.T) {
 	orig := errors.New("test")
 	err := Errorf("sub: %w", orig)
 	require.Equal(t, "sub: test", err.Error())
+}
+
+// parseJSONLogs required for comparing the logs without key ordering.
+func parseJSONLogs(t testing.TB, r io.Reader) []map[string]interface{} {
+	dec := json.NewDecoder(r)
+	var arr []map[string]interface{}
+	for {
+		m := make(map[string]interface{})
+		err := dec.Decode(&m)
+		if err == io.EOF {
+			break
+		}
+		require.NoError(t, err)
+		arr = append(arr, m)
+	}
+	return arr
 }
 
 func TestInfo(t *testing.T) {
@@ -37,9 +55,9 @@ func TestInfo(t *testing.T) {
 	ctx = WithStringValues(ctx, "baz", []string{"A", "B"})
 	Error(ctx, errors.New("error message"))
 
-	require.Equal(t, strings.TrimSpace(`
+	require.Equal(t, parseJSONLogs(t, strings.NewReader(`
 {"severity":"info","foo":"val","message":"debug message: 123"}
 {"severity":"warn","foo":"val","message":"info message: 321"}
 {"severity":"error","foo":"val","bar":2,"baz":["A","B"],"message":"error message"}
-`), strings.TrimSpace(buf.String()))
+`)), parseJSONLogs(t, buf))
 }
