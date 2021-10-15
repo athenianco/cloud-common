@@ -45,76 +45,53 @@ func GetUserEmail(ctx context.Context) string {
 
 type contextValueKey struct{}
 
-type contextValue struct {
-	head  *contextValue
-	next  *contextValue
+type Value struct {
+	prev  *Value
 	key   string
 	value interface{}
 }
 
-type Value struct {
-	cur *contextValue
-	end *contextValue
-}
-
-func (v *Value) Next() *Value {
-	if v == nil || v.cur == nil || v.cur.next == nil || v.cur == v.end {
+func (v *Value) Prev() *Value {
+	if v == nil || v.prev == nil {
 		return nil
 	}
-	return &Value{
-		cur: v.cur.next,
-		end: v.end,
-	}
+	return v.prev
 }
 
 func (v *Value) Key() string {
-	if v == nil || v.cur == nil {
+	if v == nil {
 		return ""
 	}
-	return v.cur.key
+	return v.key
 }
 
 func (v *Value) Value() interface{} {
-	if v == nil || v.cur == nil {
-		return ""
+	if v == nil {
+		return nil
 	}
-	return v.cur.value
-}
-
-func getContextValue(ctx context.Context) *contextValue {
-	v, _ := ctx.Value(contextValueKey{}).(*contextValue)
-	return v
+	return v.value
 }
 
 func GetContextValues(ctx context.Context) *Value {
-	end := getContextValue(ctx)
-	if end == nil {
-		return nil
-	}
-	first := end.head
-	return &Value{
-		cur: first,
-		end: end,
-	}
+	v, _ := ctx.Value(contextValueKey{}).(*Value)
+	return v
 }
 
 func GetContextMap(ctx context.Context) map[string]interface{} {
 	m := make(map[string]interface{})
-	for v := GetContextValues(ctx); v != nil; v = v.Next() {
-		m[v.Key()] = v.Value()
+	for v := GetContextValues(ctx); v != nil; v = v.Prev() {
+		key := v.Key()
+		if _, ok := m[key]; ok {
+			continue
+		}
+		m[key] = v.Value()
 	}
 	return m
 }
 
 func withContextValue(ctx context.Context, key string, val interface{}) context.Context {
-	prev := getContextValue(ctx)
-	v := &contextValue{key: key, value: val}
-	if prev == nil {
-		v.head = v
-	} else {
-		v.head = prev.head
-		prev.next = v
-	}
+	prev := GetContextValues(ctx)
+	v := &Value{key: key, value: val, prev: prev}
 	return context.WithValue(ctx, contextValueKey{}, v)
 }
 

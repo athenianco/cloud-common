@@ -20,6 +20,9 @@ func TestWithValues(t *testing.T) {
 	ctx2 := WithStringValue(ctx1, "k1", "v1+")
 	ctx2 = WithStringValue(ctx2, "k3", "v3+")
 
+	ctx3 := WithStringValue(ctx1, "k1", "v1++")
+	ctx3 = WithStringValue(ctx3, "k3", "v3++")
+
 	require.Equal(t, M{
 		"k1": "v1",
 		"k2": "v2",
@@ -30,4 +33,9 @@ func TestWithValues(t *testing.T) {
 		"k2": "v2",
 		"k3": "v3+",
 	}, GetContextMap(ctx2))
+	require.Equal(t, M{
+		"k1": "v1++",
+		"k2": "v2",
+		"k3": "v3++",
+	}, GetContextMap(ctx3))
 }
