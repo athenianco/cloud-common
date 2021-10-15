@@ -33,33 +33,6 @@ jobs:
       run: |
         set -x
         go test ./...
-  test-go-113:
-    name: Test (1.13)
-    runs-on: ubuntu-20.04
-    steps:
-    - name: actions/checkout
-      uses: actions/checkout@v2
-    - name: actions/cache
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/go
-          ~/.cache/go-build
-        key: ${{ env.GO_CACHE_PREFIX }}-test-113-${{ hashFiles('go.mod') }}
-        restore-keys: |
-          ${{ env.GO_CACHE_PREFIX }}-test-113-
-          ${{ env.GO_CACHE_PREFIX }}-
-    - uses: actions/setup-go@v2
-      with:
-        go-version: '1.13.x'
-    - name: script
-      run: |
-        set -x
-        rm go.mod go.sum
-        go mod init github.com/athenianco/cloud-common
-        go mod tidy
-        go test ./...
-        go build ./...
   semgrep:
     name: Semgrep
     runs-on: ubuntu-20.04
