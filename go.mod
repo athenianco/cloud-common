@@ -3,7 +3,7 @@ module github.com/athenianco/cloud-common
 go 1.16
 
 require (
-	cloud.google.com/go/kms v0.1.0
+	cloud.google.com/go/kms v0.2.0
 	cloud.google.com/go/pubsub v1.17.0
 	cloud.google.com/go/storage v1.18.1
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
