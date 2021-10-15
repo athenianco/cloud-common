@@ -5,7 +5,7 @@ go 1.16
 require (
 	cloud.google.com/go/kms v0.1.0
 	cloud.google.com/go/pubsub v1.17.0
-	cloud.google.com/go/storage v1.16.0
+	cloud.google.com/go/storage v1.18.1
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/containerd/continuity v0.0.0-20200107194136-26c1120b8d41 // indirect
@@ -21,6 +21,6 @@ require (
 	github.com/rs/zerolog v1.24.0
 	github.com/slack-go/slack v0.9.4
 	github.com/stretchr/testify v1.7.0
-	google.golang.org/genproto v0.0.0-20210824181836-a4879c3d0e89
+	google.golang.org/genproto v0.0.0-20210924002016-3dee208752a0
 	gotest.tools v2.2.0+incompatible // indirect
 )
