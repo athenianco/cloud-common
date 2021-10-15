@@ -10,7 +10,7 @@ require (
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/containerd/continuity v0.0.0-20200107194136-26c1120b8d41 // indirect
 	github.com/getsentry/sentry-go v0.11.0
-	github.com/golang-migrate/migrate/v4 v4.12.2
+	github.com/golang-migrate/migrate/v4 v4.15.0
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
 	github.com/jackc/pgx/v4 v4.13.0
 	github.com/lib/pq v1.10.2
@@ -22,5 +22,4 @@ require (
 	github.com/slack-go/slack v0.9.4
 	github.com/stretchr/testify v1.7.0
 	google.golang.org/genproto v0.0.0-20210924002016-3dee208752a0
-	gotest.tools v2.2.0+incompatible // indirect
 )
