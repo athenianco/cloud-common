@@ -16,6 +16,11 @@ var (
 	zlogErr = zerolog.New(os.Stderr).With().Timestamp().Logger()
 )
 
+type IgnoredError interface {
+	error
+	Ignored() bool
+}
+
 func init() {
 	// this is what GCP expects
 	zerolog.LevelFieldName = "severity"
@@ -96,6 +101,10 @@ func Error(ctx context.Context, err error) EventID {
 		Temporary() bool
 	}:
 		if err.Temporary() {
+			return ""
+		}
+	case IgnoredError:
+		if err.Ignored() {
 			return ""
 		}
 	}

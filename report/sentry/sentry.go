@@ -132,6 +132,9 @@ func CaptureAndPanic(ctx context.Context, r interface{}) {
 
 func RecoverAndPanic(ctx context.Context) {
 	if r := recover(); r != nil {
+		if e, ok := r.(report.IgnoredError); ok && e.Ignored() {
+			return
+		}
 		CaptureAndPanic(ctx, r)
 	}
 }
