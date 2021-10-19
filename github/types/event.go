@@ -19,9 +19,10 @@ const (
 )
 
 type RenameEvent struct {
-	NodeID  string `json:"node_id"`
-	Name    string `json:"name"`
-	NameOld string `json:"name_old,omitempty"`
+	NodeID  string  `json:"node_id,omitempty"`
+	GID     GraphID `json:"gid,omitempty"`
+	Name    string  `json:"name"`
+	NameOld string  `json:"name_old,omitempty"`
 }
 
 type RepoEvent struct {
@@ -32,6 +33,7 @@ type RepoEvent struct {
 	OrgName      string        `json:"org_name,omitempty"`   // set for OrgRenamed; deprecated
 	OrgRename    *RenameEvent  `json:"org_rename,omitempty"` // set for OrgRenamed events
 	NodeIDs      []NodeID      `json:"node_id,omitempty"`
+	GIDs         []GraphID     `json:"gids,omitempty"`
 	FullNames    []string      `json:"full_name,omitempty"`
 	FullNamesOld []string      `json:"full_name_old,omitempty"` // set for RepoUpdated event
 	NodesTotal   uint64        `json:"nodes_total,omitempty"`

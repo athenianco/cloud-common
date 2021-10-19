@@ -2,8 +2,10 @@ package types
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"strconv"
+	"strings"
 
 	"github.com/athenianco/cloud-common/report"
 )
@@ -66,6 +68,75 @@ func WithEvent(ctx context.Context, id EventID) context.Context {
 type EventContext struct {
 	InstallContext
 	EventID EventID `json:"event_id,omitempty"`
+}
+
+func NewGraphID(id uint64, typ string) GraphID {
+	if id == 0 {
+		panic("empty ID")
+	}
+	if typ == "" {
+		panic("empty type")
+	}
+	return GraphID{id: id, typ: typ}
+}
+
+func ParseGraphID(s string) (GraphID, error) {
+	if s == "" {
+		return GraphID{}, nil
+	}
+	i := strings.IndexByte(s, ':')
+	if i < 0 {
+		return GraphID{}, errors.New("invalid graph ID format")
+	}
+	sid, typ := s[:i], s[i+1:]
+	id, err := strconv.ParseUint(sid, 10, 64)
+	if err != nil {
+		return GraphID{}, err
+	}
+	return NewGraphID(id, typ), nil
+}
+
+// GraphID is an integer graph node ID used in Athenian.
+type GraphID struct {
+	id  uint64
+	typ string
+}
+
+func (id GraphID) IsZero() bool {
+	return id == GraphID{}
+}
+
+func (id GraphID) MarshalJSON() ([]byte, error) {
+	return json.Marshal(id.String())
+}
+
+func (id *GraphID) UnmarshalJSON(data []byte) error {
+	var s *string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+	if s == nil {
+		*id = GraphID{}
+		return nil
+	}
+	v, err := ParseGraphID(*s)
+	if err != nil {
+		return err
+	}
+	*id = v
+	return nil
+}
+
+func (id GraphID) Type() string {
+	return id.typ
+}
+
+func (id GraphID) Split() (uint64, string) {
+	return id.id, id.typ
+}
+
+func (id GraphID) String() string {
+	return strconv.FormatUint(id.id, 10) + ":" + id.typ
 }
 
 const (
