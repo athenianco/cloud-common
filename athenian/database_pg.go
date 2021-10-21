@@ -60,17 +60,19 @@ func scanAccount(sc dbs.Scanner) (Account, error) {
 		created time.Time
 		secret  string
 		salt    int
+		expires time.Time
 	)
-	err := sc.Scan(&id, &created, &secret, &salt)
+	err := sc.Scan(&id, &created, &secret, &salt, &expires)
 	return Account{
 		ID:         AccountID(id),
 		CreatedAt:  created,
 		Secret:     secret,
 		SecretSalt: salt,
+		ExpiresAt:  expires,
 	}, err
 }
 
-const accountColumns = `id, created_at, secret, secret_salt`
+const accountColumns = `id, created_at, secret, secret_salt, expires_at`
 
 func (db *database) GetAccount(ctx context.Context, id AccountID) (*Account, error) {
 	row := db.db.QueryRow(ctx, `SELECT `+accountColumns+` FROM public.accounts WHERE id = $1`, int64(id))

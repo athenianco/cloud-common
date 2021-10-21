@@ -17,6 +17,7 @@ type Account struct {
 	CreatedAt  time.Time
 	Secret     string
 	SecretSalt int
+	ExpiresAt  time.Time
 }
 
 type Database interface {
