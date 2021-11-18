@@ -9,8 +9,11 @@ import (
 )
 
 type AccountID int64
+type AccountFeature string
 type GithubAccountID = gtypes.AccID
 type JiraAccountID = jtypes.AccID
+
+const ApiChannelFeature = "api_channel"
 
 type Account struct {
 	ID         AccountID
@@ -23,6 +26,9 @@ type Database interface {
 	GetAccount(ctx context.Context, id AccountID) (*Account, error)
 	GetAccountBySecret(ctx context.Context, secret string) (*Account, error)
 	ListAccounts(ctx context.Context) ([]Account, error)
+	// DEV-3198
+	SetAccountFeature(ctx context.Context, id AccountID, feature AccountFeature, parameters interface{}) error
+	UnsetAccountFeature(ctx context.Context, id AccountID, feature AccountFeature) error
 
 	CreateJiraToAthenian(ctx context.Context, jid JiraAccountID, aid AccountID) error
 	DeleteJiraToAthenian(ctx context.Context, aid AccountID) error

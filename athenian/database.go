@@ -8,6 +8,7 @@ import (
 )
 
 type AccountID = types.AccountID
+type AccountFeature = types.AccountFeature
 type GithubAccountID = gtypes.AccID
 type JiraAccountID = jtypes.AccID
 
