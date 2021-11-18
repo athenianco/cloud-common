@@ -2,6 +2,7 @@ package athenian
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"os"
 	"strings"
@@ -111,6 +112,45 @@ func (db *database) ListAccounts(ctx context.Context) ([]Account, error) {
 		out = append(out, acc)
 	}
 	return out, rows.Err()
+}
+
+func (db *database) getAccountFeatureID(ctx context.Context, feature AccountFeature) (int64, error) {
+	row := db.db.QueryRow(ctx, `SELECT id FROM features WHERE name = $1`, feature)
+	var id int64
+	err := row.Scan(&id)
+	if err == pgx.ErrNoRows {
+		return 0, ErrNotFound
+	} else if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+func (db *database) SetAccountFeature(ctx context.Context, id AccountID, feature AccountFeature, parameters interface{}) error {
+	paramsEncData, err := json.Marshal(parameters)
+	if err != nil {
+		return err
+	}
+
+	fid, err := db.getAccountFeatureID(ctx, feature)
+	if err != nil {
+		return err
+	}
+	_, err = db.db.Exec(ctx, `INSERT 
+INTO account_features (account_id, feature_id, enabled, parameters, updated_at) 
+VALUES($1, $2, true, $3, NOW())
+ON CONFLICT(account_id, feature_id)
+DO UPDATE SET (account_id, feature_id, enabled, parameters, updated_at) = ($1, $2, true, $3, NOW())`, id, fid, string(paramsEncData))
+	return err
+}
+
+func (db *database) UnsetAccountFeature(ctx context.Context, id AccountID, feature AccountFeature) error {
+	fid, err := db.getAccountFeatureID(ctx, feature)
+	if err != nil {
+		return err
+	}
+	_, err = db.db.Exec(ctx, `DELETE FROM account_features WHERE account_id = $1 AND feature_id = $2`, id, fid)
+	return err
 }
 
 func (db *database) CreateJiraToAthenian(ctx context.Context, jid JiraAccountID, aid AccountID) error {
