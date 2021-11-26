@@ -7,16 +7,26 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/athenianco/cloud-common/dbs"
 	"github.com/athenianco/cloud-common/report"
 )
 
-var ErrNoAppMeta = errors.New("no application metadata")
+var (
+	// ErrNotFound is returned by getter DB functions that return a single object, indicating that an object doesn't exist.
+	ErrNotFound = dbs.ErrNotFound
+	// ErrNoInstallationMeta is returned if the event doesn't contain required installation-related info.
+	ErrNoInstallationMeta = errors.New("no installation metadata")
+	// ErrNoAppMeta is returned if the event doesn't contain required app-related info.
+	ErrNoAppMeta = errors.New("no application metadata")
+	// ErrNoEventMeta is returned if the event doesn't contain required info.
+	ErrNoEventMeta = errors.New("no event metadata")
+)
 
-// AccID is a Athenian Github Account ID.
+// AccID is an Athenian Github Account ID.
 // It combines a Github AppID with a Github InstallID and can uniquely identify an installation.
 type AccID int64
 
-// AthenianAppID is a Athenian Github App ID.
+// AthenianAppID is an Athenian Github App ID.
 // It is different from AppID, because Github's AppID is unique only in the context of a single Github instance.
 // In means that AppIDs may collide between GHC and GHE, So we map them to AthenianAppIDs instead.
 type AthenianAppID int64
@@ -96,6 +106,59 @@ func ParseGraphID(s string) (GraphID, error) {
 	return NewGraphID(id, typ), nil
 }
 
+type NodeResolver interface {
+	// ResolveNode creates or returns existing Athenian node ID for a given type and Github node ID.
+	ResolveNode(ctx context.Context, accID AccID, typ, id string) (GraphID, error)
+}
+
+// IsSameType checks if all IDs in the slice are of the same node type.
+func IsSameType(ids []GraphID) (string, bool) {
+	if len(ids) == 0 {
+		return "", false
+	}
+	typ := ids[0].Type()
+	for _, id := range ids[1:] {
+		if typ != id.Type() {
+			return "", false
+		}
+	}
+	return typ, true
+}
+
+// WithGraphID sets a graph node ID for the current context.
+func WithGraphID(ctx context.Context, id GraphID) context.Context {
+	ctx = report.WithStringValue(ctx, "athenian.github.graph_id", id.String())
+	ctx = WithNodeType(ctx, id.Type())
+	return ctx
+}
+
+// WithParentGraphID sets a parent graph node ID for the current context.
+func WithParentGraphID(ctx context.Context, id GraphID, field string) context.Context {
+	ctx = report.WithStringValue(ctx, "athenian.github.parent_graph_id", id.String())
+	if field != "" {
+		ctx = report.WithStringValue(ctx, "github.parent_node_field", field)
+	}
+	return ctx
+}
+
+// WithGraphIDs sets graph node IDs for the current context.
+func WithGraphIDs(ctx context.Context, ids []GraphID) context.Context {
+	if typ, ok := IsSameType(ids); ok {
+		ctx = WithNodeType(ctx, typ)
+	}
+	str := make([]string, 0, len(ids))
+	for _, id := range ids {
+		str = append(str, id.String())
+	}
+	ctx = report.WithStringValues(ctx, "athenian.github.graph_id", str)
+	return ctx
+}
+
+var (
+	_ json.Marshaler   = GraphID{}
+	_ json.Unmarshaler = (*GraphID)(nil)
+)
+
 // GraphID is an integer graph node ID used in Athenian.
 type GraphID struct {
 	id  uint64
@@ -127,6 +190,10 @@ func (id *GraphID) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (id GraphID) ID() uint64 {
+	return id.id
+}
+
 func (id GraphID) Type() string {
 	return id.typ
 }
@@ -138,10 +205,6 @@ func (id GraphID) Split() (uint64, string) {
 func (id GraphID) String() string {
 	return strconv.FormatUint(id.id, 10) + ":" + id.typ
 }
-
-const (
-	FeatureGHE = "athenian.github.ghe"
-)
 
 // Feature is a feature flag in the format "example.feature_one".
 type Feature string
@@ -331,4 +394,10 @@ func WithNodeIDs(ctx context.Context, ids []string) context.Context {
 
 type AppLister interface {
 	ListApplications(ctx context.Context) ([]Application, error)
+}
+
+type AppDatabase interface {
+	AppLister
+	CreateApplication(ctx context.Context, appID AppID, slug string, secret string) (AppContext, error)
+	GetApplication(ctx context.Context, id AthenianAppID) (*Application, error)
 }
