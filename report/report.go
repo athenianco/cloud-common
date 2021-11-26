@@ -16,11 +16,6 @@ var (
 	zlogErr = zerolog.New(os.Stderr).With().Timestamp().Logger()
 )
 
-type IgnoredError interface {
-	error
-	Ignored() bool
-}
-
 func init() {
 	// this is what GCP expects
 	zerolog.LevelFieldName = "severity"
@@ -35,6 +30,29 @@ func init() {
 	if debug := os.Getenv("ATHENIAN_COMMON_DEBUG"); debug == "true" {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	}
+}
+
+// IgnoredError is an error that should be ignored by error reporting services.
+type IgnoredError interface {
+	error
+	Ignored() bool
+}
+
+type ignoredError struct {
+	error
+}
+
+// NewIgnoredError creates a generic error that should be ignored by error reporting services.
+func NewIgnoredError(err error) IgnoredError {
+	return &ignoredError{error: err}
+}
+
+func (e *ignoredError) Ignored() bool {
+	return true
+}
+
+func (e *ignoredError) Unwrap() error {
+	return e.error
 }
 
 const (
