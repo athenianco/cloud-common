@@ -12,7 +12,7 @@ require (
 	github.com/getsentry/sentry-go v0.11.0
 	github.com/golang-migrate/migrate/v4 v4.12.2
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
-	github.com/jackc/pgx/v4 v4.13.0
+	github.com/jackc/pgx/v4 v4.14.1
 	github.com/lib/pq v1.10.4
 	github.com/opencontainers/runc v1.0.0-rc95 // indirect
 	github.com/ory/dockertest v3.3.5+incompatible
