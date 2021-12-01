@@ -10,12 +10,24 @@ import (
 type RepoEventType string
 
 const (
-	RepoAdded    = RepoEventType("added")
-	RepoUpdated  = RepoEventType("updated")
-	RepoRemoved  = RepoEventType("removed")
+	// OrgRenamed event triggers when the organization changes their name (GitHub "login").
+	OrgRenamed = RepoEventType("org-renamed")
+	// RepoAdded event triggers when a new or existing repository is added to Athenian.
+	RepoAdded = RepoEventType("added")
+	// RepoUpdated event triggers when a repository is renamed.
+	RepoUpdated = RepoEventType("updated")
+	// RepoRemoved event triggers when a repository is deleted or removed from Athenian.
+	RepoRemoved = RepoEventType("removed")
+	// RepoFetched event triggers when a repository is completely fetched (or fetch times out).
+	RepoFetched = RepoEventType("fetched")
+	// RepoComplete event triggers when a repository is completely fetched (or fetch times out).
+	//
+	// Deprecated: use RepoFetched instead.
 	RepoComplete = RepoEventType("complete")
-	RepoIndexed  = RepoEventType("indexed")
-	OrgRenamed   = RepoEventType("org-renamed")
+	// RepoIndexed event triggers when a repository is indexed in the database (VACUUM and other similar operations).
+	//
+	// Deprecated: use RepoFetched instead.
+	RepoIndexed = RepoEventType("indexed")
 )
 
 type RenameEvent struct {
