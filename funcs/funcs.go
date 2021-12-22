@@ -67,7 +67,7 @@ type pubsubHandler struct {
 func (h *pubsubHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// https://github.com/GoogleCloudPlatform/golang-samples/blob/31bb00e8dd7407c229442f37fb8b99d24df15233/eventarc/pubsub/main.go#L31
 	var msg struct {
-		pubsub.Message `json:"message"`
+		Message pubsub.Message `json:"message"`
 	}
 	ctx := r.Context()
 
