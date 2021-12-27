@@ -18,7 +18,7 @@ require (
 	github.com/ory/dockertest v3.3.5+incompatible
 	github.com/prometheus/client_golang v1.11.0
 	github.com/prometheus/client_model v0.2.0
-	github.com/rs/zerolog v1.26.0
+	github.com/rs/zerolog v1.26.1
 	github.com/slack-go/slack v0.10.0
 	github.com/stretchr/testify v1.7.0
 	google.golang.org/genproto v0.0.0-20211018162055-cf77aa76bad2
