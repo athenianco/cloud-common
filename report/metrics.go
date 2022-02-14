@@ -13,7 +13,7 @@ const (
 	labelSeverity = "severity"
 
 	severityInfo    = "info"
-	severityMessage = "message"
+	severityWarning = "warning"
 	severityError   = "error"
 )
 
