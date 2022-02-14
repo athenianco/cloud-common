@@ -25,5 +25,5 @@ var (
 )
 
 func countReportLogsInc(ctx context.Context, severity string) {
-	countReportLogs.WithLabelValues(GetUserID(ctx), GetUserName(ctx), severity)
+	countReportLogs.WithLabelValues(GetUserID(ctx), GetUserName(ctx), severity).Inc()
 }
