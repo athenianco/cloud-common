@@ -65,11 +65,14 @@ type pubsubHandler struct {
 }
 
 func (h *pubsubHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	defer report.Flush()
+	defer sentry.RecoverAndPanic(ctx)
+
 	// https://github.com/GoogleCloudPlatform/golang-samples/blob/31bb00e8dd7407c229442f37fb8b99d24df15233/eventarc/pubsub/main.go#L31
 	var msg struct {
 		Message pubsub.Message `json:"message"`
 	}
-	ctx := r.Context()
 
 	if err := json.NewDecoder(r.Body).Decode(&msg); err != nil {
 		handleErr(ctx, w, err, http.StatusBadRequest)
