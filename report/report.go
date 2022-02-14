@@ -100,6 +100,7 @@ func Info(ctx context.Context, format string, args ...interface{}) {
 	if global == nil {
 		return
 	}
+	countReportLogsInc(ctx, severityInfo)
 	global.CaptureInfo(ctx, format, args...)
 }
 
@@ -107,6 +108,7 @@ func Message(ctx context.Context, format string, args ...interface{}) {
 	if global == nil {
 		return
 	}
+	countReportLogsInc(ctx, severityMessage)
 	global.CaptureMessage(ctx, format, args...)
 }
 
@@ -126,6 +128,7 @@ func Error(ctx context.Context, err error) EventID {
 			return ""
 		}
 	}
+	countReportLogsInc(ctx, severityError)
 	return global.CaptureError(ctx, err)
 }
 
