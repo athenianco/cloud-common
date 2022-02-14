@@ -19,7 +19,7 @@ const (
 
 var (
 	countReportLogs = promauto.NewCounterVec(prometheus.CounterOpts{
-		Name: "count_report_logs",
+		Name: "athenian_report_logs_count",
 		Help: "The count of log entries",
 	}, []string{labelUserID, labelUserName, labelSeverity})
 )
