@@ -108,7 +108,7 @@ func Message(ctx context.Context, format string, args ...interface{}) {
 	if global == nil {
 		return
 	}
-	countReportLogsInc(ctx, severityMessage)
+	countReportLogsInc(ctx, severityWarning)
 	global.CaptureMessage(ctx, format, args...)
 }
 
