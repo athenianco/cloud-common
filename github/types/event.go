@@ -37,18 +37,35 @@ type RenameEvent struct {
 	NameOld string  `json:"name_old,omitempty"`
 }
 
+const (
+	RepoFlagEnableConsistency = RepoEventFlag("enable_consistency_on_acc")
+)
+
+type RepoEventFlag string
+type RepoEventFlags []RepoEventFlag
+
+func (list RepoEventFlags) Has(f RepoEventFlag) bool {
+	for _, f2 := range list {
+		if f == f2 {
+			return true
+		}
+	}
+	return false
+}
+
 type RepoEvent struct {
-	EventID      EventID       `json:"event_id"`
-	Timestamp    time.Time     `json:"ts,omitempty"`
-	AccID        AccID         `json:"acc_id"`
-	Type         RepoEventType `json:"type"`
-	OrgName      string        `json:"org_name,omitempty"`   // set for OrgRenamed; deprecated
-	OrgRename    *RenameEvent  `json:"org_rename,omitempty"` // set for OrgRenamed events
-	NodeIDs      []NodeID      `json:"node_id,omitempty"`
-	GIDs         []GraphID     `json:"gids,omitempty"`
-	FullNames    []string      `json:"full_name,omitempty"`
-	FullNamesOld []string      `json:"full_name_old,omitempty"` // set for RepoUpdated event
-	NodesTotal   uint64        `json:"nodes_total,omitempty"`
+	EventID      EventID        `json:"event_id"`
+	Timestamp    time.Time      `json:"ts,omitempty"`
+	AccID        AccID          `json:"acc_id"`
+	Type         RepoEventType  `json:"type"`
+	Flags        RepoEventFlags `json:"flags,omitempty"`
+	OrgName      string         `json:"org_name,omitempty"`   // set for OrgRenamed; deprecated
+	OrgRename    *RenameEvent   `json:"org_rename,omitempty"` // set for OrgRenamed events
+	NodeIDs      []NodeID       `json:"node_id,omitempty"`
+	GIDs         []GraphID      `json:"gids,omitempty"`
+	FullNames    []string       `json:"full_name,omitempty"`
+	FullNamesOld []string       `json:"full_name_old,omitempty"` // set for RepoUpdated event
+	NodesTotal   uint64         `json:"nodes_total,omitempty"`
 }
 
 func (ev *RepoEvent) EventContext() EventContext {
