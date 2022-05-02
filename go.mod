@@ -5,7 +5,7 @@ go 1.16
 require (
 	cloud.google.com/go v0.101.0 // indirect
 	cloud.google.com/go/kms v1.4.0
-	cloud.google.com/go/pubsub v1.20.0
+	cloud.google.com/go/pubsub v1.21.0
 	cloud.google.com/go/storage v1.22.0
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/containerd/continuity v0.3.0 // indirect
