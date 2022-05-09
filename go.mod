@@ -17,7 +17,7 @@ require (
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/jackc/pgx/v4 v4.15.0
+	github.com/jackc/pgx/v4 v4.16.1
 	github.com/lib/pq v1.10.5
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/opencontainers/runc v1.1.1 // indirect
