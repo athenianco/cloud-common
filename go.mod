@@ -5,7 +5,7 @@ go 1.16
 require (
 	cloud.google.com/go v0.101.0 // indirect
 	cloud.google.com/go/kms v1.4.0
-	cloud.google.com/go/pubsub v1.20.0
+	cloud.google.com/go/pubsub v1.21.1
 	cloud.google.com/go/storage v1.22.0
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/containerd/continuity v0.3.0 // indirect
@@ -31,7 +31,6 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
 	golang.org/x/net v0.0.0-20220420153159-1850ba15e1be // indirect
-	google.golang.org/api v0.75.0 // indirect
-	google.golang.org/genproto v0.0.0-20220420195807-44278fea765b
+	google.golang.org/genproto v0.0.0-20220426171045-31bebdecfb46
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
