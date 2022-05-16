@@ -22,7 +22,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/opencontainers/runc v1.1.1 // indirect
 	github.com/ory/dockertest/v3 v3.8.1
-	github.com/prometheus/client_golang v1.12.1
+	github.com/prometheus/client_golang v1.12.2
 	github.com/prometheus/client_model v0.2.0
 	github.com/rs/zerolog v1.26.1
 	github.com/slack-go/slack v0.10.2
