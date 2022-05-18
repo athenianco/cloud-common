@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"os"
+	"time"
 
 	"github.com/rs/zerolog"
 
@@ -21,6 +22,7 @@ func init() {
 	zerolog.LevelFieldName = "severity"
 	zerolog.MessageFieldName = "message"
 	zerolog.ErrorFieldName = zerolog.MessageFieldName
+	zerolog.TimeFieldFormat = time.RFC3339Nano
 	if gcp.IsCloudFunction() {
 		// redirect error log to stdout as well
 		zlogErr = zlogOut
