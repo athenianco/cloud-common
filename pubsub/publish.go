@@ -9,8 +9,13 @@ import (
 	"strings"
 
 	gpubsub "cloud.google.com/go/pubsub"
+
 	"github.com/athenianco/cloud-common/gcp"
 	"github.com/athenianco/cloud-common/report"
+)
+
+const (
+	AttrContentType = "Content-Type"
 )
 
 var checkTopics = os.Getenv("ATHENIAN_CHECK_TOPICS") == "true"
@@ -80,6 +85,24 @@ func (p *gcpPublisher) Publish(ctx context.Context, msgs ...[]byte) error {
 	return last
 }
 
+// PublishMsg publishes messages to the Pub/Sub topic synchronously.
+func (p *gcpPublisher) PublishMsg(ctx context.Context, msgs ...*Message) error {
+	res := make([]*gpubsub.PublishResult, 0, len(msgs))
+	for _, m := range msgs {
+		r := p.topic.Publish(ctx, &gpubsub.Message{Data: m.Data, Attributes: m.Attrs})
+		res = append(res, r)
+	}
+	var last error
+	for _, r := range res {
+		_, err := r.Get(ctx)
+		if err != nil {
+			last = err
+			report.Error(ctx, err)
+		}
+	}
+	return last
+}
+
 func (p *gcpPublisher) Batch(ctx context.Context) (Batch, error) {
 	return &gcpBatch{topic: p.topic}, nil
 }
@@ -92,6 +115,14 @@ type gcpBatch struct {
 func (b *gcpBatch) Publish(ctx context.Context, msgs ...[]byte) error {
 	for _, data := range msgs {
 		r := b.topic.Publish(ctx, &gpubsub.Message{Data: data})
+		b.res = append(b.res, r)
+	}
+	return nil
+}
+
+func (b *gcpBatch) PublishMsg(ctx context.Context, msgs ...*Message) error {
+	for _, m := range msgs {
+		r := b.topic.Publish(ctx, &gpubsub.Message{Data: m.Data, Attributes: m.Attrs})
 		b.res = append(b.res, r)
 	}
 	return nil
@@ -119,13 +150,24 @@ func (b *gcpBatch) Close() error {
 
 // PublishJSON publishes values as JSON to Pub/Sub topic synchronously.
 func PublishJSON(ctx context.Context, p MinPublisher, vals ...interface{}) error {
-	msgs := make([][]byte, 0, len(vals))
+	return PublishJSONWith(ctx, p, nil, vals)
+}
+
+// PublishJSONWith publishes values as JSON to Pub/Sub topic synchronously and attaches atributes to it.
+func PublishJSONWith(ctx context.Context, p MinPublisher, attrs map[string]string, vals ...interface{}) error {
+	if _, ok := attrs[AttrContentType]; !ok {
+		if attrs == nil {
+			attrs = make(map[string]string)
+		}
+		attrs[AttrContentType] = "application/json"
+	}
+	msgs := make([]*Message, 0, len(vals))
 	for _, v := range vals {
 		data, err := json.Marshal(v)
 		if err != nil {
 			return fmt.Errorf("failed to encode the value: %v", err)
 		}
-		msgs = append(msgs, data)
+		msgs = append(msgs, &Message{Data: data, Attrs: attrs})
 	}
-	return p.Publish(ctx, msgs...)
+	return p.PublishMsg(ctx, msgs...)
 }
