@@ -401,3 +401,41 @@ type AppDatabase interface {
 	CreateApplication(ctx context.Context, appID AppID, slug string, secret string) (AppContext, error)
 	GetApplication(ctx context.Context, id AthenianAppID) (*Application, error)
 }
+
+// AttrsWithAccount sets an Athenian Github Account ID to the attributes map.
+func AttrsWithAccount(attrs map[string]string, id AccID) map[string]string {
+	if attrs == nil {
+		attrs = make(map[string]string)
+	}
+	if id != 0 {
+		attrs["com.athenian.github.acc_id"] = id.String()
+	}
+	return attrs
+}
+
+// AttrsWithApplication sets a Github App for the attributes map.
+func AttrsWithApplication(attrs map[string]string, actx AppContext) map[string]string {
+	if attrs == nil {
+		attrs = make(map[string]string)
+	}
+	if actx.AthenianAppID != 0 {
+		attrs["com.athenian.github.app_id"] = strconv.FormatInt(int64(actx.AthenianAppID), 10)
+	}
+	if actx.AppID != 0 {
+		attrs["com.github.x.app_id"] = strconv.FormatInt(int64(actx.AppID), 10)
+	}
+	return attrs
+}
+
+// AttrsWithInstallation sets a Github App installation for the attributes map.
+func AttrsWithInstallation(attrs map[string]string, ictx InstallContext) map[string]string {
+	if attrs == nil {
+		attrs = make(map[string]string)
+	}
+	attrs = AttrsWithApplication(attrs, ictx.AppContext)
+	attrs = AttrsWithAccount(attrs, ictx.AccountID)
+	if ictx.InstallID != 0 {
+		attrs["com.github.x.install_id"] = ictx.InstallID.String()
+	}
+	return attrs
+}
