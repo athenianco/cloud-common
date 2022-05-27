@@ -150,7 +150,7 @@ func (b *gcpBatch) Close() error {
 
 // PublishJSON publishes values as JSON to Pub/Sub topic synchronously.
 func PublishJSON(ctx context.Context, p MinPublisher, vals ...interface{}) error {
-	return PublishJSONWith(ctx, p, nil, vals)
+	return PublishJSONWith(ctx, p, nil, vals...)
 }
 
 // PublishJSONWith publishes values as JSON to Pub/Sub topic synchronously and attaches atributes to it.
