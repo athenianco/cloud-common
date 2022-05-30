@@ -72,6 +72,7 @@ func (ev *RepoEvent) EventContext() EventContext {
 	var ectx EventContext
 	ectx.EventID = ev.EventID
 	ectx.AccountID = ev.AccID
+	ectx.Timestamp = ev.Timestamp
 	return ectx
 }
 

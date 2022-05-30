@@ -6,6 +6,7 @@ import (
 	"errors"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/athenianco/cloud-common/dbs"
 	"github.com/athenianco/cloud-common/report"
@@ -77,7 +78,8 @@ func WithEvent(ctx context.Context, id EventID) context.Context {
 // EventContext contains metadata that helps to identify a Github event for a specific installation.
 type EventContext struct {
 	InstallContext
-	EventID EventID `json:"event_id,omitempty"`
+	EventID   EventID   `json:"event_id,omitempty"`
+	Timestamp time.Time `json:"ts,omitempty"`
 }
 
 func NewGraphID(id uint64, typ string) GraphID {
