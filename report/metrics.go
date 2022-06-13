@@ -12,6 +12,7 @@ const (
 	labelUserName = "user_name"
 	labelSeverity = "severity"
 
+	severityDebug   = "debug"
 	severityInfo    = "info"
 	severityWarning = "warning"
 	severityError   = "error"

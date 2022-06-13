@@ -97,6 +97,10 @@ type reporter struct {
 	r report.Reporter
 }
 
+func (r reporter) CaptureDebug(ctx context.Context, format string, args ...interface{}) {
+	r.r.CaptureDebug(ctx, format, args...)
+}
+
 func (r reporter) CaptureInfo(ctx context.Context, format string, args ...interface{}) {
 	r.r.CaptureInfo(ctx, format, args...)
 }

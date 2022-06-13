@@ -6,6 +6,19 @@ import (
 	"encoding/hex"
 )
 
+type debugKey struct{}
+
+// WithDebug enables debug logging on this context.
+func WithDebug(ctx context.Context) context.Context {
+	return context.WithValue(ctx, debugKey{}, true)
+}
+
+// GetDebug checks if debug flag was set on the context.
+func GetDebug(ctx context.Context) bool {
+	v, _ := ctx.Value(debugKey{}).(bool)
+	return v
+}
+
 type userIDKey struct{}
 type userNameKey struct{}
 type userEmailKey struct{}

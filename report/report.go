@@ -23,14 +23,16 @@ func init() {
 	zerolog.MessageFieldName = "message"
 	zerolog.ErrorFieldName = zerolog.MessageFieldName
 	zerolog.TimeFieldFormat = time.RFC3339Nano
+
+	lvl := zerolog.InfoLevel
+	if debug := os.Getenv("ATHENIAN_COMMON_DEBUG"); debug == "true" {
+		lvl = zerolog.DebugLevel
+	}
+	zlogOut = zlogOut.Level(lvl)
+	zlogErr = zlogErr.Level(lvl)
 	if gcp.IsCloudFunction() {
 		// redirect error log to stdout as well
 		zlogErr = zlogOut
-	}
-
-	zerolog.SetGlobalLevel(zerolog.InfoLevel)
-	if debug := os.Getenv("ATHENIAN_COMMON_DEBUG"); debug == "true" {
-		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	}
 }
 
@@ -93,9 +95,18 @@ func SetReporter(r Reporter) {
 type EventID string
 
 type Reporter interface {
+	CaptureDebug(ctx context.Context, format string, args ...interface{})
 	CaptureInfo(ctx context.Context, format string, args ...interface{})
 	CaptureMessage(ctx context.Context, format string, args ...interface{})
 	CaptureError(ctx context.Context, err error) EventID
+}
+
+func Debug(ctx context.Context, format string, args ...interface{}) {
+	if global == nil {
+		return
+	}
+	countReportLogsInc(ctx, severityDebug)
+	global.CaptureDebug(ctx, format, args...)
 }
 
 func Info(ctx context.Context, format string, args ...interface{}) {
@@ -164,6 +175,14 @@ func (reporter) fromContext(ctx context.Context, ev *zerolog.Event) *zerolog.Eve
 		ev = ev.Interface(key, val)
 	}
 	return ev
+}
+
+func (r reporter) CaptureDebug(ctx context.Context, format string, args ...interface{}) {
+	l := zlogOut
+	if GetDebug(ctx) {
+		l = l.Level(zerolog.DebugLevel)
+	}
+	r.fromContext(ctx, l.Debug()).Msgf(format, args...)
 }
 
 func (r reporter) CaptureInfo(ctx context.Context, format string, args ...interface{}) {
