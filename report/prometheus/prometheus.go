@@ -8,6 +8,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/push"
 	io_prometheus_client "github.com/prometheus/client_model/go"
+	"github.com/prometheus/common/expfmt"
 )
 
 func init() {
@@ -32,7 +33,7 @@ func init() {
 	p := push.New(addr, job).Gatherer(&staticLabels{
 		g:      prometheus.DefaultGatherer,
 		labels: labels,
-	})
+	}).Format(expfmt.FmtText)
 	report.RegisterFlusher(p.Add)
 }
 
