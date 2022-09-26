@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -145,23 +146,44 @@ func Error(ctx context.Context, err error) EventID {
 	return global.CaptureError(ctx, err)
 }
 
-var finalizers []func() error
+var finalizers []func(ctx context.Context) error
 
 // RegisterFlusher registers a flush function that must be called to send monitoring information.
-func RegisterFlusher(f func() error) {
+func RegisterFlusher(f func(ctx context.Context) error) {
 	finalizers = append(finalizers, f)
 }
 
 // Flush must be called to ensure all reports and metrics were sent to the monitoring service(s).
-func Flush() error {
-	var last error
+func Flush(timeout time.Duration) error {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	var (
+		wg   sync.WaitGroup
+		errc = make(chan error, len(finalizers))
+	)
 	for _, f := range finalizers {
-		if err := f(); err != nil {
-			zlogErr.Error().Err(err).Send()
-			last = err
-		}
+		f := f
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if err := f(ctx); err != nil {
+				zlogErr.Error().Err(err).Send()
+				errc <- err
+			}
+		}()
 	}
-	return last
+	// We intentionally wait only for the first event: either all finalizers are done, or timeout was hit.
+	// This function must not block longer than the allowed timeout, so keep the finalizer hanging in the background.
+	go func() {
+		wg.Wait()
+		cancel()
+	}()
+	<-ctx.Done()
+	select {
+	case err := <-errc:
+		return err
+	default:
+	}
+	return nil
 }
 
 func Default() Reporter {

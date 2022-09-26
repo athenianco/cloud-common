@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/athenianco/cloud-common/report"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/push"
 	io_prometheus_client "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
+
+	"github.com/athenianco/cloud-common/report"
 )
 
 func init() {
@@ -34,7 +35,7 @@ func init() {
 		g:      prometheus.DefaultGatherer,
 		labels: labels,
 	}).Format(expfmt.FmtText)
-	report.RegisterFlusher(p.Add)
+	report.RegisterFlusher(p.AddContext)
 }
 
 // staticLabels is a Gatherer that attaches a static set of labels to all metrics.

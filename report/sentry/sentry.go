@@ -70,8 +70,12 @@ func init() {
 		panic(err)
 	}
 	report.SetReporter(reporter{r: report.Default()})
-	report.RegisterFlusher(func() error {
-		sentry.Flush(tr.Timeout)
+	report.RegisterFlusher(func(ctx context.Context) error {
+		timeout := tr.Timeout
+		if deadline, ok := ctx.Deadline(); ok {
+			timeout = time.Until(deadline)
+		}
+		sentry.Flush(timeout)
 		return nil
 	})
 }
