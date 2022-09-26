@@ -155,7 +155,7 @@ var %s struct{
 
 // %sFunc is an auto-generate wrapper for a cloud function. See %s for details.
 func %sFunc(w http.ResponseWriter, r *http.Request) {
-	defer report.Flush()
+	defer report.Flush(3*time.Second)
 	defer sentry.RecoverAndPanic(r.Context())
 	f := &%s
 	f.once.Do(func(){
@@ -197,7 +197,7 @@ var %s struct{
 
 // %sFunc is an auto-generate wrapper for a cloud function. See %s for details.
 func %sFunc(ctx context.Context, msg *pubsub.Message) error {
-	defer report.Flush()
+	defer report.Flush(3*time.Second)
 	defer sentry.RecoverAndPanic(ctx)
 	f := &%s
 	f.once.Do(func(){
@@ -257,6 +257,7 @@ import (
 	"errors"
 	"net/http"
 	"sync"
+	"time"
 
 	// https://github.com/GoogleCloudPlatform/functions-framework-go/issues/30#issuecomment-648528715
 	_ "github.com/GoogleCloudPlatform/functions-framework-go/funcframework"
@@ -281,6 +282,7 @@ var (
 	_ report.Reporter
 	_ = service.Register
 	_ funcs.WebhookHandler
+	_ time.Time
 )
 `, g.Pkg)
 	var (

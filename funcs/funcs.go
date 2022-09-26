@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	common "github.com/athenianco/cloud-common"
 	"github.com/athenianco/cloud-common/pubsub"
@@ -38,7 +39,7 @@ type PubSubHandler interface {
 func RunHTTP(h WebhookHandler) bool {
 	ctx := context.Background()
 
-	defer report.Flush()
+	defer report.Flush(time.Minute)
 	defer sentry.RecoverAndPanic(ctx)
 
 	if err := h.Init(); err != nil {
@@ -66,7 +67,7 @@ type pubsubHandler struct {
 
 func (h *pubsubHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	defer report.Flush()
+	defer report.Flush(time.Minute)
 	defer sentry.RecoverAndPanic(ctx)
 
 	// https://github.com/GoogleCloudPlatform/golang-samples/blob/31bb00e8dd7407c229442f37fb8b99d24df15233/eventarc/pubsub/main.go#L31
