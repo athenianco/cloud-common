@@ -16,7 +16,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.15.1
 	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
-	github.com/jackc/pgx/v4 v4.16.1
+	github.com/jackc/pgx/v4 v4.17.2
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/lib/pq v1.10.6
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
@@ -26,7 +26,7 @@ require (
 	github.com/prometheus/common v0.37.0
 	github.com/rs/zerolog v1.26.1
 	github.com/slack-go/slack v0.10.3
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.8.0
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/crypto v0.0.0-20220926161630-eccd6366d1be // indirect
@@ -35,7 +35,6 @@ require (
 	google.golang.org/api v0.80.0 // indirect
 	google.golang.org/genproto v0.0.0-20220505152158-f39f71e6c8f3
 	google.golang.org/grpc v1.46.2 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 replace (
