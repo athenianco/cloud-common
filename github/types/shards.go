@@ -8,6 +8,7 @@ type ShardID int
 
 type Shard struct {
 	ID        ShardID
+	AccID     AccID
 	AppID     AthenianAppID
 	InstallID InstallID
 }

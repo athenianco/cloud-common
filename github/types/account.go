@@ -46,6 +46,7 @@ type Account struct {
 	Active    bool
 	Suspended bool
 	Features  Features
+	Shard     ShardID
 }
 
 // GetName returns a short account name. It will compute it from URL if Name is not set.
