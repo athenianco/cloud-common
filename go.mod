@@ -3,10 +3,9 @@ module github.com/athenianco/cloud-common
 go 1.16
 
 require (
-	cloud.google.com/go v0.101.1 // indirect
-	cloud.google.com/go/kms v1.4.0
-	cloud.google.com/go/pubsub v1.21.1
-	cloud.google.com/go/storage v1.22.0
+	cloud.google.com/go/kms v1.6.0
+	cloud.google.com/go/pubsub v1.27.1
+	cloud.google.com/go/storage v1.27.0
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/containerd/continuity v0.3.0 // indirect
 	github.com/docker/cli v20.10.16+incompatible // indirect
@@ -14,7 +13,7 @@ require (
 	github.com/docker/docker v20.10.16+incompatible // indirect
 	github.com/getsentry/sentry-go v0.15.0
 	github.com/golang-migrate/migrate/v4 v4.15.1
-	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
+	github.com/google/martian/v3 v3.3.2 // indirect
 	github.com/jackc/pgtype v1.13.0 // indirect
 	github.com/jackc/pgx/v4 v4.17.2
 	github.com/lib/pq v1.10.6
@@ -31,10 +30,7 @@ require (
 	golang.org/x/crypto v0.3.0 // indirect
 	golang.org/x/sys v0.3.0 // indirect
 	golang.org/x/text v0.5.0 // indirect
-	golang.org/x/xerrors v0.0.0-20220517211312-f3a8303e98df // indirect
-	google.golang.org/api v0.80.0 // indirect
-	google.golang.org/genproto v0.0.0-20220505152158-f39f71e6c8f3
-	google.golang.org/grpc v1.46.2 // indirect
+	google.golang.org/genproto v0.0.0-20221201164419-0e50fba7f41c
 )
 
 replace (
