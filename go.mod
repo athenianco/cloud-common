@@ -64,6 +64,7 @@ replace (
 	github.com/opencontainers/image-spec => github.com/opencontainers/image-spec v1.0.2
 	github.com/opencontainers/runc => github.com/opencontainers/runc v1.1.2
 	github.com/prometheus/client_golang => github.com/prometheus/client_golang v1.13.0
+	github.com/satori/go.uuid => github.com/satori/go.uuid v1.2.1-0.20181016170032-d91630c85102
 	github.com/valyala/fasthttp => github.com/valyala/fasthttp v1.34.0
 	golang.org/x/crypto => golang.org/x/crypto v0.0.0-20220926161630-eccd6366d1be
 	golang.org/x/net => golang.org/x/net v0.0.0-20220927171203-f486391704dc
