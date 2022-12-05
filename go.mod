@@ -15,7 +15,6 @@ require (
 	github.com/getsentry/sentry-go v0.13.0
 	github.com/golang-migrate/migrate/v4 v4.15.1
 	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
-	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/jackc/pgtype v1.13.0 // indirect
 	github.com/jackc/pgx/v4 v4.17.2
 	github.com/kr/pretty v0.3.0 // indirect
@@ -47,6 +46,7 @@ replace (
 	github.com/containernetworking/cni => github.com/containernetworking/cni v0.8.1
 	github.com/coreos/etcd => go.etcd.io/etcd/v3 v3.5.5
 	github.com/dgrijalva/jwt-go => github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
+	github.com/dgrijalva/jwt-go/v4 => github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/docker/cli => github.com/docker/cli v20.10.16+incompatible
 	github.com/docker/distribution => github.com/docker/distribution v2.8.1+incompatible
 	github.com/docker/docker => github.com/docker/docker v20.10.16+incompatible
@@ -57,6 +57,7 @@ replace (
 	github.com/gorilla/handlers => github.com/gorilla/handlers v1.3.0
 	github.com/gorilla/websocket => github.com/gorilla/websocket v1.4.1
 	github.com/kataras/iris => github.com/kataras/iris/v12 v12.2.0-alpha8
+	github.com/kataras/iris/v12 => github.com/kataras/iris/v12 v12.2.0-alpha8
 	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.16
 	github.com/miekg/dns => github.com/miekg/dns v1.1.25
 	github.com/nats-io/jwt => github.com/nats-io/jwt/v2 v2.0.1
