@@ -60,6 +60,7 @@ replace (
 	github.com/microcosm-cc/bluemonday => github.com/microcosm-cc/bluemonday v1.0.16
 	github.com/miekg/dns => github.com/miekg/dns v1.1.25
 	github.com/nats-io/jwt => github.com/nats-io/jwt/v2 v2.0.1
+	github.com/nats-io/nats-server/v2 => github.com/nats-io/nats-server/v2 v2.7.4
 	github.com/opencontainers/image-spec => github.com/opencontainers/image-spec v1.0.2
 	github.com/opencontainers/runc => github.com/opencontainers/runc v1.1.2
 	github.com/prometheus/client_golang => github.com/prometheus/client_golang v1.13.0
