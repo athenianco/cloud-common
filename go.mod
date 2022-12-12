@@ -12,7 +12,7 @@ require (
 	github.com/docker/cli v20.10.16+incompatible // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect
 	github.com/docker/docker v20.10.16+incompatible // indirect
-	github.com/getsentry/sentry-go v0.15.0
+	github.com/getsentry/sentry-go v0.16.0
 	github.com/golang-migrate/migrate/v4 v4.15.1
 	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
 	github.com/jackc/pgtype v1.13.0 // indirect
