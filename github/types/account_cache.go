@@ -59,7 +59,7 @@ func (c *accountCache) GetAccountById(ctx context.Context, ictx InstallContext) 
 	}
 	now := time.Now()
 	if r != nil && now.Sub(r.Loaded) < accCacheDuration {
-		report.Info(ctx, "using cached account info: expires in %v", accCacheDuration-now.Sub(r.Loaded))
+		report.Debug(ctx, "using cached account info: expires in %v", accCacheDuration-now.Sub(r.Loaded))
 		return r.Inst, r.Err
 	}
 	inst, err := c.db.GetAccountById(ctx, ictx)
