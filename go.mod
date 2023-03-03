@@ -12,7 +12,7 @@ require (
 	github.com/lib/pq v1.10.6
 	github.com/ory/dockertest/v3 v3.8.1
 	github.com/prometheus/client_golang v1.13.0
-	github.com/prometheus/client_model v0.2.0
+	github.com/prometheus/client_model v0.3.0
 	github.com/prometheus/common v0.37.0
 	github.com/rs/zerolog v1.26.1
 	github.com/slack-go/slack v0.10.3
