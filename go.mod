@@ -10,7 +10,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.15.1
 	github.com/jackc/pgx/v4 v4.17.2
 	github.com/lib/pq v1.10.6
-	github.com/ory/dockertest/v3 v3.8.1
+	github.com/ory/dockertest/v3 v3.9.1
 	github.com/prometheus/client_golang v1.13.0
 	github.com/prometheus/client_model v0.2.0
 	github.com/prometheus/common v0.37.0
