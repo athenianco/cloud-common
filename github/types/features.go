@@ -4,7 +4,8 @@ const (
 	// FeatureGHE is set for accounts based on Github Enterprise instance, instead of github.com.
 	FeatureGHE = Feature("athenian.github.ghe")
 	// FeatureNoConsistency disables consistency checks for an account.
-	FeatureNoConsistency         = Feature("athenian.github.no_consistency")
+	FeatureNoConsistency = Feature("athenian.github.no_consistency")
+	// FeatureNoCI disables CI for an account.
 	FeatureNoCICheckRun          = Feature("athenian.github.drop_node_type.CheckRun")
 	FeatureNoCICheckSuite        = Feature("athenian.github.drop_node_type.CheckSuite")
 	FeatureNoCIStatus            = Feature("athenian.github.drop_node_type.Status")
