@@ -245,13 +245,13 @@ func (db *database) getInstaflowStatus(ctx context.Context, accID AccountID) (*I
 func scanInstaflowStatus(sc dbs.Scanner) (InstaflowStatus, error) {
 	var (
 		accID                int64
-		accountCreated       time.Time
-		fetchStarted         time.Time
-		fetchCompleted       time.Time
-		consistencyStarted   time.Time
-		consistencyCompleted time.Time
-		precomputeStarted    time.Time
-		precomputeCompleted  time.Time
+		accountCreated       *time.Time
+		fetchStarted         *time.Time
+		fetchCompleted       *time.Time
+		consistencyStarted   *time.Time
+		consistencyCompleted *time.Time
+		precomputeStarted    *time.Time
+		precomputeCompleted  *time.Time
 		status               string
 	)
 	err := sc.Scan(&accID, &accountCreated, &fetchStarted, &fetchCompleted, &consistencyStarted, &consistencyCompleted, &precomputeStarted, &precomputeCompleted, &status)
@@ -261,13 +261,13 @@ func scanInstaflowStatus(sc dbs.Scanner) (InstaflowStatus, error) {
 
 	return InstaflowStatus{
 		AccID:                AccountID(accID),
-		AccountCreated:       accountCreated,
-		FetchStarted:         fetchStarted,
-		FetchCompleted:       fetchCompleted,
-		ConsistencyStarted:   consistencyStarted,
-		ConsistencyCompleted: consistencyCompleted,
-		PrecomputeStarted:    precomputeStarted,
-		PrecomputeCompleted:  precomputeCompleted,
+		AccountCreated:       accountCreated.UTC(),
+		FetchStarted:         fetchStarted.UTC(),
+		FetchCompleted:       fetchCompleted.UTC(),
+		ConsistencyStarted:   consistencyStarted.UTC(),
+		ConsistencyCompleted: consistencyCompleted.UTC(),
+		PrecomputeStarted:    precomputeStarted.UTC(),
+		PrecomputeCompleted:  precomputeCompleted.UTC(),
 		Status:               status,
 	}, err
 }
