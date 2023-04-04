@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -221,6 +222,85 @@ func (db *database) AthenianToGithub(ctx context.Context, id AccountID) ([]Githu
 		out = append(out, GithubAccountID(rid))
 	}
 	return out, rows.Err()
+}
+
+func (db *database) GetInstaflowStatus(ctx context.Context, accID AccountID) (*InstaflowStatus, error) {
+	return db.getInstaflowStatus(ctx, accID)
+}
+
+func (db *database) getInstaflowStatus(ctx context.Context, accID AccountID) (*InstaflowStatus, error) {
+	row := db.db.QueryRow(
+		ctx,
+		`SELECT account_id, account_created, fetch_started, fetch_completed, consistency_started, consistency_completed, precompute_started, precompute_completed, current_status
+		FROM public.installation_progress WHERE account_id = $1`,
+		int64(accID),
+	)
+	instaflowStatus, err := scanInstaflowStatus(row)
+	if err == pgx.ErrNoRows {
+		err = ErrNotFound
+	}
+	return &instaflowStatus, err
+}
+
+func scanInstaflowStatus(sc dbs.Scanner) (InstaflowStatus, error) {
+	var (
+		accID                int64
+		accountCreated       time.Time
+		fetchStarted         time.Time
+		fetchCompleted       time.Time
+		consistencyStarted   time.Time
+		consistencyCompleted time.Time
+		precomputeStarted    time.Time
+		precomputeCompleted  time.Time
+		status               string
+	)
+	err := sc.Scan(&accID, &accountCreated, &fetchStarted, &fetchCompleted, &consistencyStarted, &consistencyCompleted, &precomputeStarted, &precomputeCompleted, &status)
+	if err == pgx.ErrNoRows {
+		err = ErrNotFound
+	}
+
+	return InstaflowStatus{
+		AccID:                AccountID(accID),
+		AccountCreated:       accountCreated,
+		FetchStarted:         fetchStarted,
+		FetchCompleted:       fetchCompleted,
+		ConsistencyStarted:   consistencyStarted,
+		ConsistencyCompleted: consistencyCompleted,
+		PrecomputeStarted:    precomputeStarted,
+		PrecomputeCompleted:  precomputeCompleted,
+		Status:               status,
+	}, err
+}
+
+func (db *database) UpdateInstaflowStatus(ctx context.Context, accID AccountID, timestamp time.Time, status string) error {
+	tx, err := db.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	var qu string
+
+	ext, err := db.getInstaflowStatus(ctx, accID)
+	if err == ErrNotFound {
+		qu = fmt.Sprintf(`INSERT INTO public.installation_progress (account_id, %s, current_status)
+		VALUES ($1, $2, $3)
+		ON CONFLICT (account_id) DO UPDATE SET %s = $2, current_status = $3 where account_id = $1`, status, status)
+	} else if ext.Status != status {
+		qu = fmt.Sprintf("UPDATE public.installation_progress SET %s = $2, current_status = $3 where account_id = $1", status)
+	} else {
+		// up to date
+		return nil
+	}
+
+	if timestamp.IsZero() {
+		timestamp = time.Now().UTC()
+	}
+	_, err = tx.Exec(ctx, qu, int64(accID), timestamp, status)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (db *database) Close() error {

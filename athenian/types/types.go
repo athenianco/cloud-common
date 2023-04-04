@@ -23,6 +23,18 @@ type Account struct {
 	ExpiresAt  time.Time
 }
 
+type InstaflowStatus struct {
+	AccID                AccountID
+	AccountCreated       time.Time
+	FetchStarted         time.Time
+	FetchCompleted       time.Time
+	ConsistencyStarted   time.Time
+	ConsistencyCompleted time.Time
+	PrecomputeStarted    time.Time
+	PrecomputeCompleted  time.Time
+	Status               string
+}
+
 type Database interface {
 	GetAccount(ctx context.Context, id AccountID) (*Account, error)
 	GetAccountBySecret(ctx context.Context, secret string) (*Account, error)
@@ -38,6 +50,9 @@ type Database interface {
 
 	GithubToAthenian(ctx context.Context, id GithubAccountID) (AccountID, error)
 	AthenianToGithub(ctx context.Context, id AccountID) ([]GithubAccountID, error)
+
+	GetInstaflowStatus(ctx context.Context, accID AccountID) (*InstaflowStatus, error)
+	UpdateInstaflowStatus(ctx context.Context, accID AccountID, timestamp time.Time, status string) error
 
 	Close() error
 }

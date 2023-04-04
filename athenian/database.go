@@ -17,3 +17,5 @@ var ErrNotFound = dbs.ErrNotFound
 type Account = types.Account
 
 type Database = types.Database
+
+type InstaflowStatus = types.InstaflowStatus
