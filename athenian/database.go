@@ -19,3 +19,14 @@ type Account = types.Account
 type Database = types.Database
 
 type InstaflowStatus = types.InstaflowStatus
+type InstallStatus = types.InstallStatus
+
+const (
+	InstallStatusAccCreated          = types.InstallStatusAccCreated
+	InstallStatusFetchStarted        = types.InstallStatusFetchStarted
+	InstallStatusFetchCompleted      = types.InstallStatusFetchCompleted
+	InstallStatusConsistenyStarted   = types.InstallStatusConsistenyStarted
+	InstallStatusConsistenyCompleted = types.InstallStatusConsistenyCompleted
+	InstallStatusPrecomputeStarted   = types.InstallStatusPrecomputeStarted
+	InstallStatusPrecomputeCompleted = types.InstallStatusPrecomputeCompleted
+)

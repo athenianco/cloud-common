@@ -32,8 +32,20 @@ type InstaflowStatus struct {
 	ConsistencyCompleted time.Time
 	PrecomputeStarted    time.Time
 	PrecomputeCompleted  time.Time
-	Status               string
+	Status               InstallStatus
 }
+
+type InstallStatus string
+
+const (
+	InstallStatusAccCreated          = InstallStatus("account_created")
+	InstallStatusFetchStarted        = InstallStatus("fetch_started")
+	InstallStatusFetchCompleted      = InstallStatus("fetch_completed")
+	InstallStatusConsistenyStarted   = InstallStatus("consistency_started")
+	InstallStatusConsistenyCompleted = InstallStatus("consistency_completed")
+	InstallStatusPrecomputeStarted   = InstallStatus("precompute_started")
+	InstallStatusPrecomputeCompleted = InstallStatus("precompute_completed")
+)
 
 type Database interface {
 	GetAccount(ctx context.Context, id AccountID) (*Account, error)
@@ -52,7 +64,7 @@ type Database interface {
 	AthenianToGithub(ctx context.Context, id AccountID) ([]GithubAccountID, error)
 
 	GetInstaflowStatus(ctx context.Context, accID AccountID) (*InstaflowStatus, error)
-	UpdateInstaflowStatus(ctx context.Context, accID AccountID, timestamp time.Time, status string) error
+	UpdateInstaflowStatus(ctx context.Context, accID AccountID, timestamp time.Time, status InstallStatus) error
 
 	Close() error
 }

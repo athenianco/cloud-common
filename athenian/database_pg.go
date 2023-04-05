@@ -252,7 +252,7 @@ func scanInstaflowStatus(sc dbs.Scanner) (InstaflowStatus, error) {
 		consistencyCompleted *time.Time
 		precomputeStarted    *time.Time
 		precomputeCompleted  *time.Time
-		status               string
+		status               InstallStatus
 	)
 	err := sc.Scan(&accID, &accountCreated, &fetchStarted, &fetchCompleted, &consistencyStarted, &consistencyCompleted, &precomputeStarted, &precomputeCompleted, &status)
 	if err == pgx.ErrNoRows {
@@ -272,7 +272,7 @@ func scanInstaflowStatus(sc dbs.Scanner) (InstaflowStatus, error) {
 	}, err
 }
 
-func (db *database) UpdateInstaflowStatus(ctx context.Context, accID AccountID, timestamp time.Time, status string) error {
+func (db *database) UpdateInstaflowStatus(ctx context.Context, accID AccountID, timestamp time.Time, status InstallStatus) error {
 	tx, err := db.db.Begin(ctx)
 	if err != nil {
 		return err
