@@ -28,7 +28,7 @@ jobs:
           ${{ env.GO_CACHE_PREFIX }}-
     - uses: actions/setup-go@v2
       with:
-        go-version: '1.19.x'
+        go-version: '1.20.x'
     - name: script
       run: |
         set -x
@@ -67,6 +67,9 @@ jobs:
           restore-keys: |
             ${{ env.GO_CACHE_PREFIX }}-go-vet-
             ${{ env.GO_CACHE_PREFIX }}-
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '1.20.x'
       - name: vet
         run: go vet ./...
   static-check:
@@ -85,9 +88,12 @@ jobs:
         restore-keys: |
           ${{ env.GO_CACHE_PREFIX }}-static-check-
           ${{ env.GO_CACHE_PREFIX }}-
+    - uses: actions/setup-go@v2
+      with:
+        go-version: '1.20.x'
     - name: install staticcheck
       run: |
-        wget https://github.com/dominikh/go-tools/releases/download/2021.1.1/staticcheck_linux_amd64.tar.gz
+        wget https://github.com/dominikh/go-tools/releases/download/2023.1.3/staticcheck_linux_amd64.tar.gz
         tar -xf staticcheck_linux_amd64.tar.gz
     - name: staticcheck
       run: staticcheck/staticcheck
