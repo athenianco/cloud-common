@@ -12,6 +12,7 @@ import (
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 
+	atypes "github.com/athenianco/cloud-common/athenian/types"
 	"github.com/athenianco/cloud-common/dbs"
 )
 
@@ -19,6 +20,16 @@ const (
 	pgConnMaxLifetime = time.Minute
 	pgConnMaxIdleTime = 30 * time.Second
 )
+
+var InstallStatusTimestampColumns = map[InstallStatus]string{
+	atypes.InstallStatusAccCreated:          "account_created",
+	atypes.InstallStatusFetchStarted:        "fetch_started",
+	atypes.InstallStatusFetchCompleted:      "fetch_completed",
+	atypes.InstallStatusConsistenyStarted:   "consistency_started",
+	atypes.InstallStatusConsistenyCompleted: "consistency_completed",
+	atypes.InstallStatusPrecomputeStarted:   "precompute_started",
+	atypes.InstallStatusPrecomputeCompleted: "precompute_completed",
+}
 
 // OpenDatabaseFromEnv opens default postgres database based on environment variable:
 // STATE_DATABASE_URI
@@ -235,9 +246,10 @@ func (db *database) getInstaflowStatus(ctx context.Context, accID AccountID) (*I
 		FROM public.installation_progress WHERE account_id = $1`,
 		int64(accID),
 	)
+
 	instaflowStatus, err := scanInstaflowStatus(row)
-	if err == pgx.ErrNoRows {
-		err = ErrNotFound
+	if err != nil {
+		return nil, err
 	}
 	return &instaflowStatus, err
 }
@@ -257,6 +269,10 @@ func scanInstaflowStatus(sc dbs.Scanner) (InstaflowStatus, error) {
 	err := sc.Scan(&accID, &accountCreated, &fetchStarted, &fetchCompleted, &consistencyStarted, &consistencyCompleted, &precomputeStarted, &precomputeCompleted, &status)
 	if err == pgx.ErrNoRows {
 		err = ErrNotFound
+	}
+
+	if err != nil {
+		return InstaflowStatus{}, err
 	}
 
 	return InstaflowStatus{
@@ -279,15 +295,29 @@ func (db *database) UpdateInstaflowStatus(ctx context.Context, accID AccountID, 
 	}
 	defer tx.Rollback(ctx)
 
+	tsColumn := InstallStatusTimestampColumns[status]
+
 	var qu string
 
 	ext, err := db.getInstaflowStatus(ctx, accID)
-	if err == ErrNotFound {
-		qu = fmt.Sprintf(`INSERT INTO public.installation_progress (account_id, %s, current_status)
-		VALUES ($1, $2, $3)
-		ON CONFLICT (account_id) DO UPDATE SET %s = $2, current_status = $3 where account_id = $1`, status, status)
+	if err != nil && err != ErrNotFound {
+		return err
+	} else if err != ErrNotFound {
+		if tsColumn == `` {
+			qu = `INSERT INTO public.installation_progress (account_id, current_status)
+			VALUES ($1, $2)
+			ON CONFLICT (account_id) DO UPDATE SET current_status = $2 where account_id = $1`
+		} else {
+			qu = fmt.Sprintf(`INSERT INTO public.installation_progress (account_id, current_status, %s)
+			VALUES ($1, $2, $3)
+			ON CONFLICT (account_id) DO UPDATE SET current_status = $2, %s = $3 where account_id = $1`, tsColumn, tsColumn)
+		}
 	} else if ext.Status != status {
-		qu = fmt.Sprintf("UPDATE public.installation_progress SET %s = $2, current_status = $3 where account_id = $1", status)
+		if tsColumn == `` {
+			qu = `UPDATE public.installation_progress SET current_status = $2 where account_id = $1`
+		} else {
+			qu = fmt.Sprintf(`UPDATE public.installation_progress SET current_status = $2, %s = $3 where account_id = $1`, tsColumn)
+		}
 	} else {
 		// up to date
 		return nil
@@ -296,7 +326,7 @@ func (db *database) UpdateInstaflowStatus(ctx context.Context, accID AccountID, 
 	if timestamp.IsZero() {
 		timestamp = time.Now().UTC()
 	}
-	_, err = tx.Exec(ctx, qu, int64(accID), timestamp, status)
+	_, err = tx.Exec(ctx, qu, int64(accID), status, timestamp)
 	if err != nil {
 		return err
 	}
