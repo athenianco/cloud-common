@@ -302,7 +302,7 @@ func (db *database) UpdateInstaflowStatus(ctx context.Context, accID AccountID, 
 	ext, err := db.getInstaflowStatus(ctx, accID)
 	if err != nil && err != ErrNotFound {
 		return err
-	} else if err != ErrNotFound {
+	} else if err == ErrNotFound {
 		if tsColumn == `` {
 			qu = `INSERT INTO public.installation_progress (account_id, current_status)
 			VALUES ($1, $2)
