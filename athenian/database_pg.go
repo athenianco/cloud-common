@@ -276,7 +276,7 @@ func scanInstaflowStatus(sc dbs.Scanner) (InstaflowStatus, error) {
 	}
 
 	return InstaflowStatus{
-		AccID:                AccountID(accID),
+		AccID:                GithubAccountID(accID),
 		AccountCreated:       accountCreated.UTC(),
 		FetchStarted:         fetchStarted.UTC(),
 		FetchCompleted:       fetchCompleted.UTC(),

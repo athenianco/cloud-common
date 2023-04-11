@@ -24,7 +24,7 @@ type Account struct {
 }
 
 type InstaflowStatus struct {
-	AccID                AccountID
+	AccID                GithubAccountID
 	AccountCreated       time.Time
 	FetchStarted         time.Time
 	FetchCompleted       time.Time
