@@ -63,8 +63,8 @@ type Database interface {
 	GithubToAthenian(ctx context.Context, id GithubAccountID) (AccountID, error)
 	AthenianToGithub(ctx context.Context, id AccountID) ([]GithubAccountID, error)
 
-	GetInstaflowStatus(ctx context.Context, accID AccountID) (*InstaflowStatus, error)
-	UpdateInstaflowStatus(ctx context.Context, accID AccountID, timestamp time.Time, status InstallStatus) error
+	GetInstaflowStatus(ctx context.Context, accID GithubAccountID) (*InstaflowStatus, error)
+	UpdateInstaflowStatus(ctx context.Context, accID GithubAccountID, timestamp time.Time, status InstallStatus) error
 
 	Close() error
 }

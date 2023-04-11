@@ -235,15 +235,15 @@ func (db *database) AthenianToGithub(ctx context.Context, id AccountID) ([]Githu
 	return out, rows.Err()
 }
 
-func (db *database) GetInstaflowStatus(ctx context.Context, accID AccountID) (*InstaflowStatus, error) {
+func (db *database) GetInstaflowStatus(ctx context.Context, accID GithubAccountID) (*InstaflowStatus, error) {
 	return db.getInstaflowStatus(ctx, accID)
 }
 
-func (db *database) getInstaflowStatus(ctx context.Context, accID AccountID) (*InstaflowStatus, error) {
+func (db *database) getInstaflowStatus(ctx context.Context, accID GithubAccountID) (*InstaflowStatus, error) {
 	row := db.db.QueryRow(
 		ctx,
-		`SELECT account_id, account_created, fetch_started, fetch_completed, consistency_started, consistency_completed, precompute_started, precompute_completed, current_status
-		FROM public.installation_progress WHERE account_id = $1`,
+		`SELECT github_account_id, account_created, fetch_started, fetch_completed, consistency_started, consistency_completed, precompute_started, precompute_completed, current_status
+		FROM public.installation_progress WHERE github_account_id = $1`,
 		int64(accID),
 	)
 
@@ -288,7 +288,7 @@ func scanInstaflowStatus(sc dbs.Scanner) (InstaflowStatus, error) {
 	}, err
 }
 
-func (db *database) UpdateInstaflowStatus(ctx context.Context, accID AccountID, timestamp time.Time, status InstallStatus) error {
+func (db *database) UpdateInstaflowStatus(ctx context.Context, accID GithubAccountID, timestamp time.Time, status InstallStatus) error {
 	tx, err := db.db.Begin(ctx)
 	if err != nil {
 		return err
@@ -304,19 +304,19 @@ func (db *database) UpdateInstaflowStatus(ctx context.Context, accID AccountID, 
 		return err
 	} else if err == ErrNotFound {
 		if tsColumn == `` {
-			qu = `INSERT INTO public.installation_progress (account_id, current_status)
+			qu = `INSERT INTO public.installation_progress (github_account_id, current_status)
 			VALUES ($1, $2)
-			ON CONFLICT (account_id) DO UPDATE SET current_status = $2 where account_id = $1`
+			ON CONFLICT (github_account_id) DO UPDATE SET current_status = $2 where github_account_id = $1`
 		} else {
-			qu = fmt.Sprintf(`INSERT INTO public.installation_progress (account_id, current_status, %s)
+			qu = fmt.Sprintf(`INSERT INTO public.installation_progress (github_account_id, current_status, %s)
 			VALUES ($1, $2, $3)
-			ON CONFLICT (account_id) DO UPDATE SET current_status = $2, %s = $3 where account_id = $1`, tsColumn, tsColumn)
+			ON CONFLICT (github_account_id) DO UPDATE SET current_status = $2, %s = $3 where github_account_id = $1`, tsColumn, tsColumn)
 		}
 	} else if ext.Status != status {
 		if tsColumn == `` {
-			qu = `UPDATE public.installation_progress SET current_status = $2 where account_id = $1`
+			qu = `UPDATE public.installation_progress SET current_status = $2 where github_account_id = $1`
 		} else {
-			qu = fmt.Sprintf(`UPDATE public.installation_progress SET current_status = $2, %s = $3 where account_id = $1`, tsColumn)
+			qu = fmt.Sprintf(`UPDATE public.installation_progress SET current_status = $2, %s = $3 where github_account_id = $1`, tsColumn)
 		}
 	} else {
 		// up to date
