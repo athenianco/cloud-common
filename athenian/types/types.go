@@ -25,26 +25,20 @@ type Account struct {
 
 type InstaflowStatus struct {
 	AccID                GithubAccountID
-	AccountCreated       time.Time
 	FetchStarted         time.Time
 	FetchCompleted       time.Time
 	ConsistencyStarted   time.Time
 	ConsistencyCompleted time.Time
-	PrecomputeStarted    time.Time
-	PrecomputeCompleted  time.Time
 	Status               InstallStatus
 }
 
 type InstallStatus string
 
 const (
-	InstallStatusAccCreated          = InstallStatus("account_created")
 	InstallStatusFetchStarted        = InstallStatus("fetch_started")
 	InstallStatusFetchCompleted      = InstallStatus("fetch_completed")
 	InstallStatusConsistenyStarted   = InstallStatus("consistency_started")
 	InstallStatusConsistenyCompleted = InstallStatus("consistency_completed")
-	InstallStatusPrecomputeStarted   = InstallStatus("precompute_started")
-	InstallStatusPrecomputeCompleted = InstallStatus("precompute_completed")
 )
 
 type Database interface {

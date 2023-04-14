@@ -22,13 +22,10 @@ const (
 )
 
 var InstallStatusTimestampColumns = map[InstallStatus]string{
-	atypes.InstallStatusAccCreated:          "account_created",
 	atypes.InstallStatusFetchStarted:        "fetch_started",
 	atypes.InstallStatusFetchCompleted:      "fetch_completed",
 	atypes.InstallStatusConsistenyStarted:   "consistency_started",
 	atypes.InstallStatusConsistenyCompleted: "consistency_completed",
-	atypes.InstallStatusPrecomputeStarted:   "precompute_started",
-	atypes.InstallStatusPrecomputeCompleted: "precompute_completed",
 }
 
 // OpenDatabaseFromEnv opens default postgres database based on environment variable:
@@ -242,8 +239,15 @@ func (db *database) GetInstaflowStatus(ctx context.Context, accID GithubAccountI
 func (db *database) getInstaflowStatus(ctx context.Context, accID GithubAccountID) (*InstaflowStatus, error) {
 	row := db.db.QueryRow(
 		ctx,
-		`SELECT github_account_id, account_created, fetch_started, fetch_completed, consistency_started, consistency_completed, precompute_started, precompute_completed, current_status
-		FROM public.installation_progress WHERE github_account_id = $1`,
+		`SELECT
+			ip.github_account_id,
+			ip.fetch_started,
+			ip.fetch_completed,
+			ip.consistency_started,
+			ip.consistency_completed,
+			ip.current_status
+		FROM public.installation_progress ip
+		WHERE ip.github_account_id = $1`,
 		int64(accID),
 	)
 
@@ -257,16 +261,13 @@ func (db *database) getInstaflowStatus(ctx context.Context, accID GithubAccountI
 func scanInstaflowStatus(sc dbs.Scanner) (InstaflowStatus, error) {
 	var (
 		accID                int64
-		accountCreated       *time.Time
 		fetchStarted         *time.Time
 		fetchCompleted       *time.Time
 		consistencyStarted   *time.Time
 		consistencyCompleted *time.Time
-		precomputeStarted    *time.Time
-		precomputeCompleted  *time.Time
 		status               string
 	)
-	err := sc.Scan(&accID, &accountCreated, &fetchStarted, &fetchCompleted, &consistencyStarted, &consistencyCompleted, &precomputeStarted, &precomputeCompleted, &status)
+	err := sc.Scan(&accID, &fetchStarted, &fetchCompleted, &consistencyStarted, &consistencyCompleted, &status)
 	if err == pgx.ErrNoRows {
 		err = ErrNotFound
 	}
@@ -277,13 +278,10 @@ func scanInstaflowStatus(sc dbs.Scanner) (InstaflowStatus, error) {
 
 	return InstaflowStatus{
 		AccID:                GithubAccountID(accID),
-		AccountCreated:       accountCreated.UTC(),
 		FetchStarted:         fetchStarted.UTC(),
 		FetchCompleted:       fetchCompleted.UTC(),
 		ConsistencyStarted:   consistencyStarted.UTC(),
 		ConsistencyCompleted: consistencyCompleted.UTC(),
-		PrecomputeStarted:    precomputeStarted.UTC(),
-		PrecomputeCompleted:  precomputeCompleted.UTC(),
 		Status:               InstallStatus(status),
 	}, err
 }
