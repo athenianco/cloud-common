@@ -14,7 +14,7 @@ require (
 	github.com/prometheus/client_golang v1.14.0
 	github.com/prometheus/client_model v0.3.0
 	github.com/prometheus/common v0.42.0
-	github.com/rs/zerolog v1.29.0
+	github.com/rs/zerolog v1.29.1
 	github.com/slack-go/slack v0.12.1
 	github.com/stretchr/testify v1.8.2
 	google.golang.org/genproto v0.0.0-20230403163135-c38d8f061ccd
