@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/kms v1.10.1
 	cloud.google.com/go/pubsub v1.30.0
 	cloud.google.com/go/storage v1.30.1
-	github.com/getsentry/sentry-go v0.20.0
+	github.com/getsentry/sentry-go v0.21.0
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/lib/pq v1.10.8
