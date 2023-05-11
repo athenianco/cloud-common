@@ -26,6 +26,9 @@ func init() {
 	zerolog.TimeFieldFormat = time.RFC3339Nano
 
 	lvl := zerolog.InfoLevel
+	if warn := os.Getenv("ATHENIAN_COMMON_WARN"); warn == "true" {
+		lvl = zerolog.WarnLevel
+	}
 	if debug := os.Getenv("ATHENIAN_COMMON_DEBUG"); debug == "true" {
 		lvl = zerolog.DebugLevel
 	}
